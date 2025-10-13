@@ -1,5 +1,7 @@
 // C code to wrap up ASM in inline function
 
+void wrap(void);
+
 int main(int argc, char **argv){
 
 	wrap();
