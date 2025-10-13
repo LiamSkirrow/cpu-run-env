@@ -18,7 +18,14 @@ Now that the standalone machine code has been generated from the user-assembly. 
 - The same socket connection will be used to issue commands, strictly from Python srcipt -> TB env. The TB will halt the CPU and will only commence execution when it receives a free-run or single-step command from the Python script. NOTE: it's probably not meaningful to collect waveform data during single-stepping mode since I'm pretty sure it'll simulate the dead-time between instructions... Unless I can find a way to only generate waveform data for the meaningful time in which the CPU is actually executing instructions and not sitting idle.
 
 ## Hardware Environment
-- TODO
+- When running on an FPGA, there should be a top-level module that instantiates the CPU itself
+- The top-level reads from a UART block, which has commands sent to it from the Python environment, and single-steps or free-runs the CPU accordingly
+- The top-level should be able to snoop the CPU registers, and takeover the memory access buses in order to report back to the Python env the state of the CPU and memory. This will allow for us to monitor the internal state of the CPU as we step through instructions one-by-one.
+
+## Feature Ideas
+- Insert breakpoints at arbitrary locations within the ASM. This would be after the standalone executable has been reached. (can this simply be achieved with BREAK/EBREAK instructions???)
+- Include option in config yaml to give hpaths to custom registers to be displayed in the single-step data dump display. Can monitor arbitrarily many regs, not just CPU regs
+- Include option to store a Python buffer of register values in single-step mode. Can then show a matplotlib plot of this buffer. Would be useful if implementing things like software/digital filters, where you can show the input/output samples on a plot that updates with each subsequent step through clock cycles/instructions. 
 
 ### Misc
 To generate a text file consisting of RISCV machine code, generated from a C file (probably needing to use 'inline' assembly, with no compiler optimisation)
