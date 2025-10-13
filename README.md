@@ -1,6 +1,9 @@
 # CPU Runtime Environment
 An interactive and modular runtime and debug environment for CPU cores
 
+# !!! TODO !!!
+- try disassembling the a.out and see if the 2x `li` instructions are actually generated at all...
+
 ## Firmware build
 - Start with a test ASM file, containing nothing but assembly code for the targeted architecture
 - Run `make fw`, this will:
