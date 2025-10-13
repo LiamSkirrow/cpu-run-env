@@ -1,0 +1,3 @@
+[submodule "riscv-cpu"]
+	path = riscv-cpu
+	url = git@github.com:LiamSkirrow/riscv-cpu.git
