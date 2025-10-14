@@ -10,5 +10,7 @@ int main(int argc, char **argv){
 }
 
 void wrap(void){
-	__asm__("li a4,4");
+	__asm__ __volatile__(".WRAPSTART:\n\t"
+			     "li a4,255\n\t"
+			     "li a5,256\n\t");
 }
