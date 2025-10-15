@@ -11,5 +11,5 @@ void wrap(void){
 	__asm__ __volatile__(
         ".WRAPSTART:\\n\\t" """
 
-c_wrapper_second_half = """ ".WRAPEND\\n\\t");
+c_wrapper_second_half = """ ".WRAPEND:\\n\\t");
 }"""
