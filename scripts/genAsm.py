@@ -15,6 +15,30 @@
 #         to tell when the user-code ends... That label will be present in a [readelf -Ws a.out] call and can be 
 #         used instead of relying on a dummy instruction to act as the escape sequence.
 
+from argparse import ArgumentParser
 import ctemplate
 
+# handle input args
+parser = ArgumentParser()
+parser.add_argument("-t", "--testname", required=True, type=str, help="Give the name of the test, used to lookup the relevant filename")
+parser.add_argument("-a", "--asmOrC",   required=True, type=str, help="Used to determine whether the test is generated from C or asm")
+
+args = parser.parse_args()
+
+test_name = args.testname
+asm_or_c  = args.asmOrC
+
+test_file_path = 'tests-' + asm_or_c + '/' + test_name + ('.s' if(asm_or_c == 'asm') else '.c' )
+
+# add the necessary bloat overhead to be included in the C __inline_asm__ function
+def addBloat(cleanAsm):
+    return '"' + cleanAsm + '\\n\\t"'
+
 # open the user-defined asm code
+print('Searching for ' + asm_or_c + ' test with name: ' + test_file_path)
+with open(test_file_path) as asmFile:
+    for line in asmFile:
+        # print(line.strip('\n'))
+        line = addBloat(line.strip('\n'))
+        print('added bloat to instruction: ' + line)
+
