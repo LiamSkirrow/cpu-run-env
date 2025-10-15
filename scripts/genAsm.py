@@ -14,3 +14,7 @@
 # - NOTE: it may be handy to include yet another label at the end of the code called WRAPEND so that it's easy
 #         to tell when the user-code ends... That label will be present in a [readelf -Ws a.out] call and can be 
 #         used instead of relying on a dummy instruction to act as the escape sequence.
+
+import ctemplate
+
+# open the user-defined asm code
