@@ -29,6 +29,11 @@ test_name = args.testname
 asm_or_c  = args.asmOrC
 
 test_file_path = 'tests-' + asm_or_c + '/' + test_name + ('.s' if(asm_or_c == 'asm') else '.c' )
+output_gen_c_path = 'gen-output/' + test_name + '.c'
+
+# hold the C wrapper harness code
+c_wrapper_first_half  = ctemplate.c_wrapper_first_half
+c_wrapper_second_half = ctemplate.c_wrapper_second_half
 
 # add the necessary bloat overhead to be included in the C __inline_asm__ function
 def addBloat(cleanAsm):
@@ -40,5 +45,14 @@ with open(test_file_path) as asmFile:
     for line in asmFile:
         # print(line.strip('\n'))
         line = addBloat(line.strip('\n'))
-        print('added bloat to instruction: ' + line)
+        # print('added bloat to instruction: ' + line)
+        c_wrapper_first_half = c_wrapper_first_half + '\n                ' + line
+    c_wrapper_total = c_wrapper_first_half + '\n               ' + c_wrapper_second_half
+    # print(c_wrapper_total)
+
+# dump generated C code output into output file, ready for compilation
+with open(output_gen_c_path, 'w') as outputGenFile:
+    outputGenFile.write(c_wrapper_total)
+
+
 
