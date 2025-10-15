@@ -17,6 +17,7 @@
 
 from argparse import ArgumentParser
 import ctemplate
+import os
 
 # handle input args
 parser = ArgumentParser()
@@ -46,13 +47,16 @@ with open(test_file_path) as asmFile:
         # print(line.strip('\n'))
         line = addBloat(line.strip('\n'))
         # print('added bloat to instruction: ' + line)
-        c_wrapper_first_half = c_wrapper_first_half + '\n                ' + line
-    c_wrapper_total = c_wrapper_first_half + '\n               ' + c_wrapper_second_half
+        c_wrapper_first_half = c_wrapper_first_half + '\n        ' + line
+    c_wrapper_total = c_wrapper_first_half + '\n        ' + c_wrapper_second_half
     # print(c_wrapper_total)
 
 # dump generated C code output into output file, ready for compilation
+os.makedirs(os.path.dirname(output_gen_c_path), exist_ok=True) # make dir if doesn't already exist
 with open(output_gen_c_path, 'w') as outputGenFile:
+    print('Writing generated wrapper C code to file: ' + output_gen_c_path)
     outputGenFile.write(c_wrapper_total)
 
+# job done! We've generated our C code, containing our test asm code within the inline assembly wrapper function :)
 
 
