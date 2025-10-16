@@ -16,7 +16,8 @@ dummy:
 	@python3 scripts/readelf.py -e $@
 	@echo
 	@hd -C gen-output/$@.genbin
-# include hexdump of final generated binary file! -> 'hd -C dummy.final'
+	@echo
+	@python3 scripts/simulate.py
 
 clean:
 	@rm -rf gen-output
