@@ -15,6 +15,8 @@
 #         to tell when the user-code ends... That label will be present in a [readelf -Ws a.out] call and can be 
 #         used instead of relying on a dummy instruction to act as the escape sequence.
 
+# TODO: include this ^^^ description (tidied up a little) in the project README... Document as you go :)
+
 from argparse import ArgumentParser
 import ctemplate
 import os
@@ -58,5 +60,3 @@ with open(output_gen_c_path, 'w') as outputGenFile:
     outputGenFile.write(c_wrapper_total)
 
 # job done! We've generated our C code, containing our test asm code within the inline assembly wrapper function :)
-
-
