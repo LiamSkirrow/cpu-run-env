@@ -9,7 +9,7 @@
 #include "../obj_dir/Vdebug_harness__Syms.h"
 
 #define MAX_SIM_TIME 20
-vluint64_t sim_time = 1;
+vluint64_t sim_time = 0;
 char buffer[8] = { 0 };
 // HOST = '127.0.0.1'
 // PORT = 65432
@@ -47,28 +47,32 @@ int main(int argc, char** argv, char** env) {
 
         // block until we receive a trigger codeword from the Python env over the socket
         // TODO: need to validate connection first
+        
+        ////////////////
+        // STEP 1: translate debug cmd into encoded nibble
+        ////////////////
+
         buffer[8] = { 0 };
         while(true){
             recv(clientSocket, buffer, sizeof(buffer), 0);
             // TODO: consolidate these into the same line in a single if statement, cleaner...
             if(!std::strncmp(buffer, "cmd-runn", 8)){
-                dut->debug_cmd = 0x0;
-                // std::cout << "Got sent cmd-runn" << std::endl;
+                dut->debug_cmd = 0x1;
+                std::cout << "Got sent cmd-runn" << std::endl;
                 break;
             }
             else if(!std::strncmp(buffer, "cmd-halt", 8)){
-                dut->debug_cmd = 0x1;
-                // std::cout << "Got sent cmd-halt" << std::endl;
+                dut->debug_cmd = 0x2;
+                std::cout << "Got sent cmd-halt" << std::endl;
                 break;
             }
             else if(!std::strncmp(buffer, "cmd-step", 8)){
-                dut->debug_cmd = 0x2;
-                // std::cout << "Got sent cmd-step" << std::endl;
+                dut->debug_cmd = 0x3;
+                std::cout << "Got sent cmd-step" << std::endl;
                 break;
             }
             else if(!std::strncmp(buffer, "cmd-exit", 8)){
-                dut->debug_cmd = 0x3;
-                // std::cout << "Got sent cmd-exit" << std::endl;
+                std::cout << "Got sent cmd-exit" << std::endl;
                 break;
             }
         }
@@ -77,41 +81,35 @@ int main(int argc, char** argv, char** env) {
             break;
         }
 
-        // handle initial reset condition
-        if(sim_time == 1 && dut->clk == 0)
-            dut->reset_n = 0;
-        else{
-            dut->reset_n = 1;
-        }
-        
-        if(sim_time == 3){
-            dut->A = 0;
-            dut->B = 1;
-        } else if(sim_time == 5){
-            dut->A = 1;
-            dut->B = 0;
-        } else if(sim_time == 7){
-            dut->A = 1;
-            dut->B = 1;
-        } else if(sim_time == 9){
-            dut->A = 0;
-            dut->B = 0;
-        } else if(sim_time == 11){
-            dut->A = 0;
-            dut->B = 1;
-        }
-        else{
-            dut->A = 0;
-            dut->B = 0;
-        }
-        
+        ////////////////
+        // STEP 2: wait for debug_harness FSM to complete its operation (poll command_complete flag)
+        ////////////////
 
-        dut->clk ^= 1;
-        dut->eval();
-        m_trace->dump(sim_time);
-        // std::cout << "[SIM] sim_time before = " << sim_time << std::endl;
-        sim_time++;
-        // std::cout << "[SIM] sim_time after = " << sim_time << std::endl;
+        while(!(dut->command_complete)){
+
+            // handle initial reset condition
+            if(sim_time == 0 && dut->clk == 0)
+                dut->reset_n = 0;
+            else{
+                dut->reset_n = 1;
+            }
+
+            dut->clk ^= 1;
+            dut->eval();
+            m_trace->dump(sim_time);
+            sim_time++;
+        }
+
+        std::cout << "COMMAND COMPLETED and " << sim_time << std::endl;
+
+        ////////////////
+        // STEP 3: transmit relevant output data over socket to Python UI, for display to user (if single-step)
+        ////////////////
+
+        if(!std::strncmp(buffer, "cmd-step", 8)){
+            // TODO: now transmit the output through to the Python env via the socket connection
+            //       to be displayed on the UI to the user
+        }
     }
 
     // closing socket
