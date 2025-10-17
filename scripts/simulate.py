@@ -12,22 +12,21 @@ def initConnection():
         s.bind((HOST, PORT))
         s.listen()
         conn, addr = s.accept()
-        with conn:
-            print(f"Connection from {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                conn.sendall(data)
+        print(f"Connection from client {addr}")
+        # with conn:
+        #     while True:
+        #         data = conn.recv(1024)
+        #         if not data:
+        #             break
+        #         conn.sendall(data)
     return conn
             
 if __name__ == "__main__":
     conn = initConnection()
-    with open('gen-output/dummy.genbin', 'rb') as userBinary:
-        for line in userBinary:
-            conn.sendall(line)
-        
-    # TODO: NEXT!
-    # connect to this socket connection via the testbench. It's Verilator time!!!
-    
 
+    # TODO: I'm getting some crashes when failing to connect, I think that I'm not closing the socket correctly
+
+    conn.send(b'beginnnn')
+    # with open('gen-output/dummy.genbin', 'rb') as userBinary:
+    #     for line in userBinary:
+    #         conn.sendall(line)    

@@ -28,27 +28,15 @@ dummy:
 	@echo
 	@hd -C gen-output/$@.genbin
 	@echo
-	@echo ">>> Running Verilator compilation..."
+	@echo ">>> Initialising Python debug environment..."
+	@python3 scripts/simulate.py &
+	@echo ">>> Running Verilator Compilation..."
 	$(CC) -Wno-fatal --trace-fst --cc $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
 	make -C obj_dir -f Vtop.mk Vtop
-	@echo ">>> Simulating as background process..."
+	@echo ">>> Running Verilator Executable..."
+	@./obj_dir/Vtop
 	@echo
-	./obj_dir/Vtop &
-	@echo ">>> Initialising Python debug environment..."
-	@python3 scripts/simulate.py
 
 clean:
-	@rm -rf gen-output
-
-
-
-
-
-# top:
-# ifeq ($(SYNTAX), 1)
-#         @echo ">>> Syntax checking module: Top"
-#         @echo
-#         $(CC) -Wno-fatal --cc $(SRC)top.v $(SRC)instruction_decode.v $(SRC)alu.v $(SRC)reg_file.v $(SRC)defines.v --lint-only $(ARGS)
-# else
-# ifeq ($(WAVES), 1)
-#         gtkwave top_waves.fst -a $(CONF)top.gtkw
+	rm -rf gen-output
+	rm -rf obj_dir
