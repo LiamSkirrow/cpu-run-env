@@ -9,11 +9,10 @@ PORT = 65432
 # handle the user input, dispatch testbench commands
 def handleCommands(conn):
     while(True):
-        # print('cpu-virtual-debugger $> ')
-        user_in = input("cpu-virtual-debugger $> ")
-        if(user_in is 'exit'):
+        user_in = input('cpu-virtual-debugger $> ')
+        if(user_in == 'exit'):
             break
-        elif(user_in is 'run'):
+        elif(user_in == 'run'):
             conn.send(b'cmd-runn')
         else:
             print('Unrecognised command...')

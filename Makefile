@@ -28,13 +28,13 @@ dummy:
 	@echo
 	@hd -C gen-output/$@.genbin
 	@echo
-	@echo ">>> Initialising Python debug environment..."
-	@python3 scripts/simulate.py &
 	@echo ">>> Running Verilator Compilation..."
 	$(CC) -Wno-fatal --trace-fst --cc $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
 	make -C obj_dir -f Vtop.mk Vtop
 	@echo ">>> Running Verilator Executable..."
-	@./obj_dir/Vtop
+	@./obj_dir/Vtop &
+	@echo ">>> Initialising Python debug environment..."
+	@python3 scripts/simulate.py
 	@echo
 
 clean:
