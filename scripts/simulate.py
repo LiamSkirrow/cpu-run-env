@@ -11,9 +11,16 @@ def handleCommands(conn):
     while(True):
         user_in = input('cpu-virtual-debugger $> ')
         if(user_in == 'exit'):
+            conn.send(b'cmd-exit')
             break
         elif(user_in == 'run'):
             conn.send(b'cmd-runn')
+        elif(user_in == 'step'):
+            conn.send(b'cmd-step')
+        elif(user_in == 'halt'):
+            conn.send(b'cmd-halt')
+        elif(user_in == '\n'):
+            pass
         else:
             print('Unrecognised command...')
 

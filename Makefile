@@ -29,10 +29,10 @@ dummy:
 	@hd -C gen-output/$@.genbin
 	@echo
 	@echo ">>> Running Verilator Compilation..."
-	$(CC) -Wno-fatal --trace-fst --cc $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
-	make -C obj_dir -f Vtop.mk Vtop
+	$(CC) -Wno-fatal --trace-fst --cc $(SRC)debug_harness.sv $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
+	make -C obj_dir -f Vdebug_harness.mk Vdebug_harness
 	@echo ">>> Running Verilator Executable..."
-	@./obj_dir/Vtop &
+	@./obj_dir/Vdebug_harness &
 	@echo ">>> Initialising Python debug environment..."
 	@python3 scripts/simulate.py
 	@echo

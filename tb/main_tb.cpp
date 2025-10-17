@@ -4,23 +4,24 @@
 #include <verilated_fst_c.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "../obj_dir/Vtop.h"
-#include "../obj_dir/Vtop___024root.h"
-#include "../obj_dir/Vtop__Syms.h"
+#include "../obj_dir/Vdebug_harness.h"
+#include "../obj_dir/Vdebug_harness___024root.h"
+#include "../obj_dir/Vdebug_harness__Syms.h"
 
 #define MAX_SIM_TIME 20
-vluint64_t sim_time = 0;
+vluint64_t sim_time = 1;
+char buffer[8] = { 0 };
 // HOST = '127.0.0.1'
 // PORT = 65432
 
 int main(int argc, char** argv, char** env) {
     
     // Verilator boilerplate
-    Vtop *dut = new Vtop;
+    Vdebug_harness *dut = new Vdebug_harness;
     Verilated::traceEverOn(true);
     VerilatedFstC *m_trace = new VerilatedFstC;
     dut->trace(m_trace, 5);
-    m_trace->open("top_waves.fst");
+    m_trace->open("debug_harness_waves.fst");
 
     // connect to socket, bound to by Python debug environment
     // creating socket
@@ -36,48 +37,81 @@ int main(int argc, char** argv, char** env) {
         // std::cout << "waiting for server to startup...";
     } while(connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)));
 
-    // block until we receive the trigger codeword from the Python env over the socket
-    // TODO: need to validate connection first
-    char buffer[8] = { 0 };
-    while(true){
-        recv(clientSocket, buffer, sizeof(buffer), 0);
-        // std::cout << "Message from server: " << buffer << std::endl;
-        if(!std::strncmp(buffer, "cmd-runn", 8)){
-            // std::cout << "Received sim start command from server" << std::endl;
-            break;
-        }
-    }
 
     // TODO: up to here!!!
-    // the next thing to do now is to move the above recv() code into the below simulation main loop
-    // so that every sim cycle, we:
-    // - block (using a while(true)) on the next command to be sent over from the Python env
-    // - when we receive a command we then break out of the infinite loop and update the dut->command (or whatever) 
-    //   port to communicate to the debug harness RTL that it needs to run/step/whatever. We don't need to validate the 
-    //   command received from the Python env since it's already validated when the user types it in on the cmd prompt.
-    //   ...
-    // - Ok... actually maybe it is useful to record the fst trace whilst in this python controlled mode... We can manually
-    //   run dut->eval() ourselves so it won't be recording all the deadtime whilst waiting for the Python cmds to come in.
     // - play with the existing trivial module for now rather than instantiating the rv-CPU. Include debug harness FSM states 
     //   like setA, resetA, setB, resetB etc... That way we can see how the fst will look, and we can play around with returning
     //   the value of z_reg to the Python env each clock cycle. We can also implement free run and single-step mode with this...
 
     while (sim_time < MAX_SIM_TIME) {
 
-        if(sim_time == 0 && dut->clk == 0)
+        // block until we receive a trigger codeword from the Python env over the socket
+        // TODO: need to validate connection first
+        buffer[8] = { 0 };
+        while(true){
+            recv(clientSocket, buffer, sizeof(buffer), 0);
+            // TODO: consolidate these into the same line in a single if statement, cleaner...
+            if(!std::strncmp(buffer, "cmd-runn", 8)){
+                dut->debug_cmd = 0x0;
+                // std::cout << "Got sent cmd-runn" << std::endl;
+                break;
+            }
+            else if(!std::strncmp(buffer, "cmd-halt", 8)){
+                dut->debug_cmd = 0x1;
+                // std::cout << "Got sent cmd-halt" << std::endl;
+                break;
+            }
+            else if(!std::strncmp(buffer, "cmd-step", 8)){
+                dut->debug_cmd = 0x2;
+                // std::cout << "Got sent cmd-step" << std::endl;
+                break;
+            }
+            else if(!std::strncmp(buffer, "cmd-exit", 8)){
+                dut->debug_cmd = 0x3;
+                // std::cout << "Got sent cmd-exit" << std::endl;
+                break;
+            }
+        }
+        if(!std::strncmp(buffer, "cmd-exit", 8)){
+            std::cout << "Terminating TB" << std::endl;
+            break;
+        }
+
+        // handle initial reset condition
+        if(sim_time == 1 && dut->clk == 0)
             dut->reset_n = 0;
         else{
             dut->reset_n = 1;
+        }
+        
+        if(sim_time == 3){
+            dut->A = 0;
+            dut->B = 1;
+        } else if(sim_time == 5){
+            dut->A = 1;
+            dut->B = 0;
+        } else if(sim_time == 7){
+            dut->A = 1;
+            dut->B = 1;
+        } else if(sim_time == 9){
+            dut->A = 0;
+            dut->B = 0;
+        } else if(sim_time == 11){
             dut->A = 0;
             dut->B = 1;
         }
-
-        // std::cout << "Simulation output: Z = " << (int)dut->Z << std::endl;
+        else{
+            dut->A = 0;
+            dut->B = 0;
+        }
+        
 
         dut->clk ^= 1;
         dut->eval();
         m_trace->dump(sim_time);
+        // std::cout << "[SIM] sim_time before = " << sim_time << std::endl;
         sim_time++;
+        // std::cout << "[SIM] sim_time after = " << sim_time << std::endl;
     }
 
     // closing socket
