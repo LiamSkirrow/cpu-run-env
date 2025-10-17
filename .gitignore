@@ -2,3 +2,4 @@ scripts/__pycache__/
 gen-output/
 venv/
 obj_dir/
+*.fst
