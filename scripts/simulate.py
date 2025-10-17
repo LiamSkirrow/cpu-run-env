@@ -19,6 +19,15 @@ def initConnection():
                 if not data:
                     break
                 conn.sendall(data)
+    return conn
             
 if __name__ == "__main__":
-    initConnection()
+    conn = initConnection()
+    with open('gen-output/dummy.genbin', 'rb') as userBinary:
+        for line in userBinary:
+            conn.sendall(line)
+        
+    # TODO: NEXT!
+    # connect to this socket connection via the testbench. It's Verilator time!!!
+    
+

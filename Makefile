@@ -10,8 +10,13 @@
 #     - run simulate.py in the background and return its pid?
 #     - run the verilator tb in some conditional block, so that when it exits (either successfully or unsuccessfully)
 #       it also kills the background simulate.py process...
+# - include the ability to run without debug env wrapper. Just simply simulate using Verilator, running the asm code
+#   this is the only time that the trace-fst should be generated. We don't need to generate the trace if we're using the Python environment
 
-
+CC=verilator
+ARGS=--trace-max-array 33 --trace-max-width 32
+SRC=rtl/
+TB=tb/
 
 dummy:
 	@echo "Running asm test: '$@.s'"
@@ -23,7 +28,27 @@ dummy:
 	@echo
 	@hd -C gen-output/$@.genbin
 	@echo
+	@echo ">>> Running Verilator compilation..."
+	$(CC) -Wno-fatal --trace-fst --cc $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
+	make -C obj_dir -f Vtop.mk Vtop
+	@echo ">>> Simulating as background process..."
+	@echo
+	./obj_dir/Vtop &
+	@echo ">>> Initialising Python debug environment..."
 	@python3 scripts/simulate.py
 
 clean:
 	@rm -rf gen-output
+
+
+
+
+
+# top:
+# ifeq ($(SYNTAX), 1)
+#         @echo ">>> Syntax checking module: Top"
+#         @echo
+#         $(CC) -Wno-fatal --cc $(SRC)top.v $(SRC)instruction_decode.v $(SRC)alu.v $(SRC)reg_file.v $(SRC)defines.v --lint-only $(ARGS)
+# else
+# ifeq ($(WAVES), 1)
+#         gtkwave top_waves.fst -a $(CONF)top.gtkw
