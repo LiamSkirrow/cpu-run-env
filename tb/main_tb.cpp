@@ -39,7 +39,7 @@ int main(int argc, char** argv, char** env) {
     while(true){
         recv(clientSocket, buffer, sizeof(buffer), 0);
         // std::cout << "Message from server: " << buffer << std::endl;
-        if(!std::strncmp(buffer, "beginnnn", 8)){
+        if(!std::strncmp(buffer, "cmd-runn", 8)){
             std::cout << "Received sim start command from server" << std::endl;
             break;
         }
