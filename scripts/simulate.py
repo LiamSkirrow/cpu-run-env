@@ -13,20 +13,30 @@ def handleCommands(conn):
         if(user_in == 'exit'):
             conn.send(b'cmd-exit')
             break
+        elif(user_in == 'help'):
+            # TODO: print out a helpful summary of commands with a decsription for each of them
+            pass
         elif(user_in == 'run'):
             conn.send(b'cmd-runn')
-        elif(user_in == 'step'):
+        elif(user_in == 'step'):   # TODO: split into stepc (step clock) or stepi (step instruction)
             conn.send(b'cmd-step')
         elif(user_in == 'halt'):
             conn.send(b'cmd-halt')
-        elif(user_in == '\n'):
+        elif(user_in == '\n'): # TODO: figure out why this isn't working
             pass
         else:
-            print('Unrecognised command...')
-        
-        # TODO:
-        # after sending a command, need to wait on the tb sending back the response
-        # before reiterating the while() loop
+            print('Unrecognised command. Type \'help\' for available commands...')
+
+        # now block waiting on response command from TB
+        if(user_in == 'run' or user_in == 'step' or user_in == 'halt'):
+            resp = conn.recv(13)
+            print('Received value of resp from sim: ' + str(resp))
+            if(resp == b'cmd-runn-resp' or resp == b'cmd-step-resp' or resp == b'cmd-halt-resp'):
+                # resp = conn.recv(4)
+                print('Value of Z: ')# + str(resp))
+            else:
+                print('Got an incorrect response command from simulation... Bug detected! Please report on GitHub Issues...')
+                exit(0)
 
 # open a socket connection and wait until the client connects
 def initConnection():

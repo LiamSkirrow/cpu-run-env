@@ -98,7 +98,7 @@ int main(int argc, char** argv, char** env) {
             dut->eval();
             m_trace->dump(sim_time);
             sim_time++;
-            std::cout << "sim_time incremented to val:  " << sim_time << std::endl;
+            // std::cout << "sim_time incremented to val:  " << sim_time << std::endl;
 
             // the debug harness has completed the operation, give one *full* extra cycle (to return 
             // to the reset state properly) and then break out of loop
@@ -120,10 +120,24 @@ int main(int argc, char** argv, char** env) {
         ////////////////
         // STEP 3: transmit relevant output data over socket to Python UI, for display to user (if single-step or hit breakpoint)
         ////////////////
+        // int *ptr0;
+        // int *ptr1;
+        // *ptr0 = 0;
+        // *ptr1 = 1;
 
+        // acknowledge successful completion of command to Python UI
         if(!std::strncmp(buffer, "cmd-step", 8)){
-            // TODO: now transmit the output through to the Python env via the socket connection
-            //       to be displayed on the UI to the user
+            std::cout << "Sim is sending resp command..." << std::endl;
+            send(clientSocket, "cmd-step-resp", sizeof("cmd-step-resp")-1, 0);
+            // send(clientSocket, &ptr1, sizeof(int), 0);
+        }
+        else if(!std::strncmp(buffer, "cmd-runn", 8)){
+            send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp")-1, 0);
+            // send(clientSocket, &ptr0, sizeof(int), 0);
+        }
+        else if(!std::strncmp(buffer, "cmd-halt", 8)){
+            send(clientSocket, "cmd-halt-resp", sizeof("cmd-halt-resp")-1, 0);
+            // send(clientSocket, &ptr1, sizeof(int), 0);
         }
     }
 
