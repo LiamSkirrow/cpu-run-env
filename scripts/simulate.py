@@ -29,9 +29,9 @@ def handleCommands(conn):
 
         # now block waiting on response command from TB
         if(user_in == 'run' or user_in == 'step' or user_in == 'halt'):
-            resp = conn.recv(13)
+            resp = conn.recv(14)
             print('Received value of resp from sim: ' + str(resp))
-            if(resp == b'cmd-runn-resp' or resp == b'cmd-step-resp' or resp == b'cmd-halt-resp'):
+            if(resp == b'cmd-runn-resp\0' or resp == b'cmd-step-resp\0' or resp == b'cmd-halt-resp\0'):
                 # resp = conn.recv(4)
                 print('Value of Z: ')# + str(resp))
             else:

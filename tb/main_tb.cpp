@@ -128,15 +128,15 @@ int main(int argc, char** argv, char** env) {
         // acknowledge successful completion of command to Python UI
         if(!std::strncmp(buffer, "cmd-step", 8)){
             std::cout << "Sim is sending resp command..." << std::endl;
-            send(clientSocket, "cmd-step-resp", sizeof("cmd-step-resp")-1, 0);
+            send(clientSocket, "cmd-step-resp", sizeof("cmd-step-resp"), 0);
             // send(clientSocket, &ptr1, sizeof(int), 0);
         }
         else if(!std::strncmp(buffer, "cmd-runn", 8)){
-            send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp")-1, 0);
+            send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp"), 0);
             // send(clientSocket, &ptr0, sizeof(int), 0);
         }
         else if(!std::strncmp(buffer, "cmd-halt", 8)){
-            send(clientSocket, "cmd-halt-resp", sizeof("cmd-halt-resp")-1, 0);
+            send(clientSocket, "cmd-halt-resp", sizeof("cmd-halt-resp"), 0);
             // send(clientSocket, &ptr1, sizeof(int), 0);
         }
     }
