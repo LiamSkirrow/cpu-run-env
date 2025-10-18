@@ -14,7 +14,7 @@ localparam STATE_HALT = 4'h2;
 localparam STATE_STEP = 4'h3;
 
 reg [3:0] state, state_next;
-reg A, B, comm_comp;
+reg A, B, comm_comp, comm_comp_next;
 // wire Z;
 
 assign command_complete = comm_comp;
@@ -24,7 +24,7 @@ top top_inst(
     .clk(clk),
     .reset_n(reset_n),
     .A(A),
-    .B(A),
+    .B(B),
     .Z(Z)
 );
 
@@ -33,7 +33,8 @@ always_ff@(posedge clk, negedge reset_n) begin : fsm_seq
         state <= 4'h0;
     end
     else begin
-        state <= state_next;
+        state     <= state_next;
+        comm_comp <= comm_comp_next;
     end
 end
 
@@ -42,32 +43,35 @@ always_comb begin : fsm_comb
         STATE_IDLE : begin
             A = 0;
             B = 0;
-            comm_comp = 0; // TODO: make this a one-shot signal with a certain clock delay?
+            comm_comp_next = 0; // TODO: make this a one-shot signal with a certain clock delay?
+            state_next = debug_cmd;
         end
         STATE_RUN : begin
             A = 0;
             B = 1;
-            comm_comp = 1;
+            comm_comp_next = 1;
+            state_next = STATE_IDLE;
         end
         STATE_HALT : begin
             A = 1;
             B = 0;
-            comm_comp = 1;
+            comm_comp_next = 1;
+            state_next = STATE_IDLE;
         end
         STATE_STEP : begin
             A = 1;
             B = 1;
-            comm_comp = 1;
+            comm_comp_next = 1;
+            state_next = STATE_IDLE;
         end
         default : begin
             A = 0;
             B = 0;
-            comm_comp = 0;
+            comm_comp_next = 0;
+            state_next = STATE_IDLE;
         end
 
     endcase
 end
-
-assign state_next = debug_cmd;
 
 endmodule

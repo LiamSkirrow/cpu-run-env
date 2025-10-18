@@ -29,13 +29,18 @@ dummy:
 	@hd -C gen-output/$@.genbin
 	@echo
 	@echo ">>> Running Verilator Compilation..."
-	$(CC) -Wno-fatal --trace-fst --cc $(SRC)debug_harness.sv $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
-	make -C obj_dir -f Vdebug_harness.mk Vdebug_harness
+	@$(CC) -Wno-fatal --trace-fst --cc $(SRC)debug_harness.sv $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
+	@make -C obj_dir -f Vdebug_harness.mk Vdebug_harness
 	@echo ">>> Running Verilator Executable..."
 	@./obj_dir/Vdebug_harness &
 	@echo ">>> Initialising Python debug environment..."
 	@python3 scripts/simulate.py
 	@echo
+
+# debug:
+# 	$(CC) -Wno-fatal --debug --gdb --trace-fst --cc $(SRC)debug_harness.sv $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
+# 	make -C obj_dir -f Vdebug_harness.mk Vdebug_harness
+# 	./obj_dir/Vdebug_harness --gdb
 
 clean:
 	rm -rf gen-output

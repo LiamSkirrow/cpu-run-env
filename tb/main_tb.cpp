@@ -9,8 +9,8 @@
 #include "../obj_dir/Vdebug_harness__Syms.h"
 
 #define MAX_SIM_TIME 20
-vluint64_t sim_time = 0;
 char buffer[8] = { 0 };
+vluint64_t sim_time = 0;
 // HOST = '127.0.0.1'
 // PORT = 65432
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv, char** env) {
         // STEP 2: wait for debug_harness FSM to complete its operation (poll command_complete flag)
         ////////////////
 
-        while(!(dut->command_complete)){
+        while(true){
 
             // handle initial reset condition
             if(sim_time == 0 && dut->clk == 0)
@@ -98,12 +98,27 @@ int main(int argc, char** argv, char** env) {
             dut->eval();
             m_trace->dump(sim_time);
             sim_time++;
+            std::cout << "sim_time incremented to val:  " << sim_time << std::endl;
+
+            // the debug harness has completed the operation, give one *full* extra cycle (to return 
+            // to the reset state properly) and then break out of loop
+            if(dut->command_complete){
+                dut->clk ^= 1;
+                dut->eval();
+                m_trace->dump(sim_time);
+                sim_time++;
+
+                dut->clk ^= 1;
+                dut->eval();
+                m_trace->dump(sim_time);
+                sim_time++;
+                
+                break;
+            }
         }
 
-        std::cout << "COMMAND COMPLETED and " << sim_time << std::endl;
-
         ////////////////
-        // STEP 3: transmit relevant output data over socket to Python UI, for display to user (if single-step)
+        // STEP 3: transmit relevant output data over socket to Python UI, for display to user (if single-step or hit breakpoint)
         ////////////////
 
         if(!std::strncmp(buffer, "cmd-step", 8)){

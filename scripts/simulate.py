@@ -23,6 +23,10 @@ def handleCommands(conn):
             pass
         else:
             print('Unrecognised command...')
+        
+        # TODO:
+        # after sending a command, need to wait on the tb sending back the response
+        # before reiterating the while() loop
 
 # open a socket connection and wait until the client connects
 def initConnection():
