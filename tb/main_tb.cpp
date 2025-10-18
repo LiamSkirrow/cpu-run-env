@@ -8,7 +8,7 @@
 #include "../obj_dir/Vdebug_harness___024root.h"
 #include "../obj_dir/Vdebug_harness__Syms.h"
 
-#define MAX_SIM_TIME 20
+#define MAX_SIM_TIME 10000
 char buffer[8] = { 0 };
 vluint64_t sim_time = 0;
 // HOST = '127.0.0.1'
@@ -36,12 +36,6 @@ int main(int argc, char** argv, char** env) {
     do{
         // std::cout << "waiting for server to startup...";
     } while(connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)));
-
-
-    // TODO: up to here!!!
-    // - play with the existing trivial module for now rather than instantiating the rv-CPU. Include debug harness FSM states 
-    //   like setA, resetA, setB, resetB etc... That way we can see how the fst will look, and we can play around with returning
-    //   the value of z_reg to the Python env each clock cycle. We can also implement free run and single-step mode with this...
 
     while (sim_time < MAX_SIM_TIME) {
 
@@ -128,15 +122,24 @@ int main(int argc, char** argv, char** env) {
         // acknowledge successful completion of command to Python UI
         if(!std::strncmp(buffer, "cmd-step", 8)){
             std::cout << "Sim is sending resp command..." << std::endl;
-            send(clientSocket, "cmd-step-resp", sizeof("cmd-step-resp"), 0);
+            if(send(clientSocket, "cmd-step-resp", sizeof("cmd-step-resp"), 0) == -1){
+                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
+                exit(-1);
+            }
             // send(clientSocket, &ptr1, sizeof(int), 0);
         }
         else if(!std::strncmp(buffer, "cmd-runn", 8)){
-            send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp"), 0);
+            if(send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp"), 0) == -1){
+                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
+                exit(-1);
+            }
             // send(clientSocket, &ptr0, sizeof(int), 0);
         }
         else if(!std::strncmp(buffer, "cmd-halt", 8)){
-            send(clientSocket, "cmd-halt-resp", sizeof("cmd-halt-resp"), 0);
+            if(send(clientSocket, "cmd-halt-resp", sizeof("cmd-halt-resp"), 0) == -1){
+                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
+                exit(-1);
+            }
             // send(clientSocket, &ptr1, sizeof(int), 0);
         }
     }
