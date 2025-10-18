@@ -32,8 +32,8 @@ def handleCommands(conn):
             resp = conn.recv(14)
             print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
             if(resp == b'cmd-runn-resp\0' or resp == b'cmd-step-resp\0' or resp == b'cmd-halt-resp\0'):
-                # resp = conn.recv(4)
-                print('Value of Z: ')# + str(resp))
+                resp = conn.recv(1)
+                print('Value of Z: ' + str(resp))
             else:
                 print('Got an incorrect response command from simulation... Bug detected! Please report on GitHub Issues...')
                 exit(0)
