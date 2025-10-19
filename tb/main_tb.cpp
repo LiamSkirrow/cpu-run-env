@@ -19,6 +19,10 @@ vluint64_t sim_time = 0;
 // HOST = '127.0.0.1'
 // PORT = 65432
 
+// TODO: can we include the name of the top level module in argv???
+//       if so, we can pass it from the Makefile to here, through to the RTL
+//       to set some parameter so that the debug_harness knows *which* dut to instantiate...
+
 int main(int argc, char** argv, char** env) {
     
     // Verilator boilerplate
@@ -103,6 +107,7 @@ int main(int argc, char** argv, char** env) {
                 dut->clk ^= 1;
                 dut->eval();
             }
+            dut->program_rom_mode = 0;
             continue;
         }
 

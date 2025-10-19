@@ -1,6 +1,8 @@
 // a dummy test top level module
 
-module debug_harness(
+module debug_harness #(
+    parameter DUT_INSTANTIATION = "riscv-cpu"
+)(
     input        clk,
     input        reset_n,
     input        reset_code_rom_n,
@@ -22,7 +24,7 @@ localparam NUM_BYTES  = NUM_INSTRS*4;
 reg [3:0] state, state_next;
 reg A, B, comm_comp, comm_comp_next;
 reg [NUM_BYTES-1:0][7:0] code_rom; // TODO: this has to synth to a reg file (I think???) for hardware implementation
-reg [7:0]                code_rom_data_out;
+reg [31:0]                code_rom_data_out;
 
 // notify the outside world that the FSM has finished running its command
 assign command_complete = comm_comp;
@@ -34,21 +36,44 @@ always_ff@(posedge clk, negedge reset_code_rom_n) begin : code_rom_ff
     end
     else begin 
         if(program_rom_mode) begin
-            code_rom[code_rom_addr_in] <= code_rom_data_in;
+            code_rom[code_rom_addr] <= code_rom_data_in;
         end
     end
 end
 
-assign code_rom_data_out = code_rom[code_rom_addr_in];
+assign code_rom_addr = program_rom_mode ? code_rom_addr_in : IMEM_ADDRESS_BUS[11:0];
+assign code_rom_data_out = {code_rom[code_rom_addr+2'd3], code_rom[code_rom_addr+2'd2],
+                            code_rom[code_rom_addr+2'd1], code_rom[code_rom_addr+2'd0]};
 
 // instantiate our top-level module to be debugged
-top top_inst(
-    .clk(clk),
-    .reset_n(reset_n),
-    .A(A),
-    .B(B),
-    .Z(Z)
-);
+generate if(DUT_INSTANTIATION == "riscv-cpu") begin
+    top cpu_top_inst(
+        .clk(clk),
+        .rst_n(reset_n),
+        .halt(cpu_halt),
+        .IMEM_DATA_BUS(code_rom_data_out),
+        .IMEM_ADDRESS_BUS(code_rom_addr_in),
+        .DMEM_READ_WRN(),
+        .DMEM_ADDRESS_BUS(),
+        .DMEM_DATA_IN_BUS(32'd0),
+        .DMEM_DATA_OUT_BUS()
+    );
+end
+else if(DUT_INSTANTIATION == "dummy-inst") begin
+    top top_inst(
+        .clk(clk),
+        .reset_n(reset_n),
+        .A(A),
+        .B(B),
+        .Z(Z)
+    );
+end
+else begin
+    
+end
+
+
+endgenerate
 
 always_ff@(posedge clk, negedge reset_n) begin : fsm_seq
     if(!reset_n) begin
