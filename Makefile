@@ -15,10 +15,11 @@
 
 CC=verilator
 ARGS=--trace-max-array 4096 --trace-max-width 32
-# SRC=rtl/
-# EXT = sv
-SRC=riscv-cpu/rtl/
-EXT = v
+SRC_DUM=rtl/dummy/
+EXT_DUM=sv
+SRC_RV_CPU=rtl/riscv-cpu/rtl/
+EXT_RV_CPU=v
+SRC_DBG_HARNESS=rtl/debug_harness.sv
 TB=tb/
 # TODO: eventually I'd like to move this config into a yaml file. Not sure 
 #       how easy that'd be though...
@@ -33,9 +34,8 @@ dummy:
 	@echo
 	@hd -C gen-output/$@.genbin
 	@echo
-# TODO: bump submodules???
 	@echo ">>> Running Verilator Compilation..."
-	@$(CC) -Wno-fatal --trace-fst --cc $(SRC)*.$(EXT) --exe $(TB)main_tb.cpp $(ARGS)
+	@$(CC) --trace-fst --cc $(SRC_DBG_HARNESS) $(SRC_RV_CPU)*.$(EXT_RV_CPU) $(SRC_DUM)*.$(EXT_DUM) --exe $(TB)main_tb.cpp $(ARGS) -GDUT_INSTANTIATION=0 --trace-params
 	@make -C obj_dir -f Vdebug_harness.mk Vdebug_harness
 	@echo ">>> Running Verilator Executable..."
 	@./obj_dir/Vdebug_harness &
