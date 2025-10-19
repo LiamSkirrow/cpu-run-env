@@ -22,15 +22,27 @@ def handleCommands(conn):
         if(user_in == 'exit'):
             conn.send(b'cmd-exit')
             break
+
         elif(user_in == 'help'):
             # TODO: print out a helpful summary of commands with a decsription for each of them
             pass
+
         elif(user_in == 'run'):
             conn.send(b'cmd-runn')
-        elif(user_in == 'step'):   # TODO: split into stepc (step clock) or stepi (step instruction)
-            conn.send(b'cmd-step')
-        elif(user_in == 'halt'):
-            conn.send(b'cmd-halt')
+
+        elif(user_in == 'stepi'):   # TODO: split into stepc (step clock) or stepi (step instruction)
+            conn.send(b'cmd-stpi')
+
+        elif(user_in == 'stepc'):
+            conn.send(b'cmd-stpc')
+
+        elif(user_in == 'load'):
+            # don't do this
+            # conn.send(b'cmd-load')
+            # do do this, but figure out how to do it right
+            # load_bin(conn, test_path)
+            pass
+
         elif(user_in == '\n'): # TODO: figure out why this isn't working
             pass
         # elif(user_in == 'load [testname]'):
@@ -39,15 +51,18 @@ def handleCommands(conn):
             print('Unrecognised command. Type \'help\' for available commands...')
 
         # now block waiting on response command from TB
-        if(user_in == 'run' or user_in == 'step' or user_in == 'halt'):
+        if(user_in == 'run' or user_in == 'stepi' or user_in == 'stepc'):
             resp = conn.recv(14)
             print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
-            if(resp == b'cmd-runn-resp\0' or resp == b'cmd-step-resp\0' or resp == b'cmd-halt-resp\0'):
+            if(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):
                 resp = conn.recv(1)
                 print('Value of Z: ' + str(resp))
             else:
                 print('Got an incorrect response command from simulation... Bug detected! Please report on GitHub Issues...')
                 exit(0)
+        elif(user_in == 'load'):
+            pass
+            # send a new binary file, same as below (can the code be consolidated?)
 
 # open a socket connection and wait until the client connects
 def initConnection():

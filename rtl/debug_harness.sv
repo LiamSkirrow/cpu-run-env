@@ -51,6 +51,7 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
     localparam STATE_RUN   = 4'h1;
     localparam STATE_STEPI = 4'h2;
     localparam STATE_STEPC = 4'h3;
+    localparam STATE_LOAD  = 4'h4;
 
     reg cpu_halt;
 
@@ -75,18 +76,18 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
             end
             STATE_RUN : begin
                 cpu_halt       = 1'b0;
-                comm_comp_next = 1'b1; // wait for breakpoint signal
+                comm_comp_next = 1'b1; // TODO: instead wait for breakpoint signal
                 state_next     = STATE_IDLE;
             end
             STATE_STEPI : begin
                 if(1'b1) begin // TODO: need to grab the 'instruction retired' flag signal
+                    cpu_halt       = 1'b1;
                     comm_comp_next = 1'b1;
-                    cpu_halt       = 1'b0;
                     state_next     = STATE_IDLE;
                 end
                 else begin
+                    cpu_halt       = 1'b0;
                     comm_comp_next = 1'b0;                    
-                    cpu_halt       = 1'b1;
                     state_next     = STATE_STEPI;
                 end
             end
@@ -104,6 +105,7 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
     end
 end
 else if(DUT_INSTANTIATION == 1) begin : gen_dummy_inst
+    // these params don't really mean anything anymore...
     localparam STATE_IDLE = 4'h0;
     localparam STATE_RUN  = 4'h1;
     localparam STATE_HALT = 4'h2;

@@ -64,12 +64,12 @@ int main(int argc, char** argv, char** env) {
                 // std::cout << "Got sent cmd-runn" << std::endl;
                 break;
             }
-            else if(!std::strncmp(buffer, "cmd-halt", 8)){
+            else if(!std::strncmp(buffer, "cmd-stpi", 8)){
                 dut->debug_cmd = 0x2;
-                // std::cout << "Got sent cmd-halt" << std::endl;
+                // std::cout << "Got sent cmd-step" << std::endl;
                 break;
             }
-            else if(!std::strncmp(buffer, "cmd-step", 8)){
+            else if(!std::strncmp(buffer, "cmd-stpc", 8)){
                 dut->debug_cmd = 0x3;
                 // std::cout << "Got sent cmd-step" << std::endl;
                 break;
@@ -151,9 +151,23 @@ int main(int argc, char** argv, char** env) {
         ////////////////
 
         // acknowledge successful completion of command to Python UI
-        if(!std::strncmp(buffer, "cmd-step", 8)){
-            std::cout << "Sim is sending resp command..." << std::endl;
-            if(send(clientSocket, "cmd-step-resp", sizeof("cmd-step-resp"), 0) == -1){
+        if(!std::strncmp(buffer, "cmd-stpi", 8)){
+            // std::cout << "Sim is sending resp command..." << std::endl;
+            if(send(clientSocket, "cmd-stpi-resp", sizeof("cmd-stpi-resp"), 0) == -1){
+                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
+                exit(-1);
+            }
+            send(clientSocket, &dut->Z, sizeof(dut->Z), 0);
+        }
+        else if(!std::strncmp(buffer, "cmd-stpc", 8)){
+            if(send(clientSocket, "cmd-stpc-resp", sizeof("cmd-stpc-resp"), 0) == -1){
+                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
+                exit(-1);
+            }
+            send(clientSocket, &dut->Z, sizeof(dut->Z), 0);
+        }
+        else if(!std::strncmp(buffer, "cmd-load", 8)){
+            if(send(clientSocket, "cmd-load-resp", sizeof("cmd-load-resp"), 0) == -1){
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
@@ -161,13 +175,6 @@ int main(int argc, char** argv, char** env) {
         }
         else if(!std::strncmp(buffer, "cmd-runn", 8)){
             if(send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp"), 0) == -1){
-                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
-                exit(-1);
-            }
-            send(clientSocket, &dut->Z, sizeof(dut->Z), 0);
-        }
-        else if(!std::strncmp(buffer, "cmd-halt", 8)){
-            if(send(clientSocket, "cmd-halt-resp", sizeof("cmd-halt-resp"), 0) == -1){
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
