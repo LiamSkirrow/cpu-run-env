@@ -1,3 +1,0 @@
-[submodule "rtl/riscv-cpu"]
-	path = rtl/riscv-cpu
-	url = git@github.com:LiamSkirrow/riscv-cpu.git
