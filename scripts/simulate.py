@@ -1,10 +1,19 @@
 # interact with the simulation environment via a socket connection
 
 import socket
-import time
+from argparse import ArgumentParser
 
 HOST = '127.0.0.1'
 PORT = 65432
+
+# handle input args
+parser = ArgumentParser()
+parser.add_argument("-t", "--testname", required=True, type=str, help="Give the name of the test to be run, used to lookup the relevant bin")
+
+args = parser.parse_args()
+
+test_name = args.testname
+test_path = 'gen-output/' + test_name + '.genbin'
 
 # handle the user input, dispatch testbench commands
 def handleCommands(conn):
@@ -24,6 +33,8 @@ def handleCommands(conn):
             conn.send(b'cmd-halt')
         elif(user_in == '\n'): # TODO: figure out why this isn't working
             pass
+        # elif(user_in == 'load [testname]'):
+        #     TODO: load a new binary instead of the old one, overwrite the buffer completely
         else:
             print('Unrecognised command. Type \'help\' for available commands...')
 
@@ -47,15 +58,19 @@ def initConnection():
         conn, addr = s.accept()
         print(f"Connection from client {addr}")
     return conn
+
+def load_bin(conn, test_path):
+    conn.send(b'cmd-load')
+    with open(test_path, 'rb') as userBinary:
+        for line in userBinary:
+            conn.send(line)
             
 if __name__ == "__main__":
+    # init connection
     conn = initConnection()
-    # TODO: I'm getting some crashes when failing to connect, I think that I'm not closing the socket correctly
-
+    # send the binary over the socket connection
+    load_bin(conn, test_path)
+    # handle user input and run commands in the main control loop
     handleCommands(conn)
     conn.close()
 
-    # conn.send(b'beginnnn')
-    # with open('gen-output/dummy.genbin', 'rb') as userBinary:
-    #     for line in userBinary:
-    #         conn.sendall(line)    

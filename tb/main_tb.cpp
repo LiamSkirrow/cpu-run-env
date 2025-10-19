@@ -8,8 +8,13 @@
 #include "../obj_dir/Vdebug_harness___024root.h"
 #include "../obj_dir/Vdebug_harness__Syms.h"
 
-#define MAX_SIM_TIME 10000
+#include <iomanip>
+
+#define MAX_SIM_TIME         10000
+#define MAX_USER_BINARY_SIZE 8*4
+
 char buffer[8] = { 0 };
+unsigned char binary_file_buff[MAX_USER_BINARY_SIZE] = { 0 };
 vluint64_t sim_time = 0;
 // HOST = '127.0.0.1'
 // PORT = 65432
@@ -52,28 +57,59 @@ int main(int argc, char** argv, char** env) {
             // TODO: consolidate these into the same line in a single if statement, cleaner...
             if(!std::strncmp(buffer, "cmd-runn", 8)){
                 dut->debug_cmd = 0x1;
-                std::cout << "Got sent cmd-runn" << std::endl;
+                // std::cout << "Got sent cmd-runn" << std::endl;
                 break;
             }
             else if(!std::strncmp(buffer, "cmd-halt", 8)){
                 dut->debug_cmd = 0x2;
-                std::cout << "Got sent cmd-halt" << std::endl;
+                // std::cout << "Got sent cmd-halt" << std::endl;
                 break;
             }
             else if(!std::strncmp(buffer, "cmd-step", 8)){
                 dut->debug_cmd = 0x3;
-                std::cout << "Got sent cmd-step" << std::endl;
+                // std::cout << "Got sent cmd-step" << std::endl;
+                break;
+            }
+            else if(!std::strncmp(buffer, "cmd-load", 8)){
+                dut->debug_cmd = 0x4;
+                // std::cout << "Got sent cmd-load" << std::endl;
                 break;
             }
             else if(!std::strncmp(buffer, "cmd-exit", 8)){
-                std::cout << "Got sent cmd-exit" << std::endl;
+                // std::cout << "Got sent cmd-exit" << std::endl;
                 break;
             }
         }
+        // command exit, time to break the infinite loop, close the trace and finish up
         if(!std::strncmp(buffer, "cmd-exit", 8)){
             std::cout << "Terminating TB" << std::endl;
             break;
         }
+        // command load, read in the user binary and pre-initialise the tb's code buffer, without a trace...
+        if(!std::strncmp(buffer, "cmd-load", 8)){
+            recv(clientSocket, binary_file_buff, MAX_USER_BINARY_SIZE, 0);
+            // toggle reset, feed in machine code byte-by-byte, toggling clock as we do so
+            dut->program_rom_mode = 1;
+            dut->reset_n = 1;
+            dut->reset_code_rom_n = 1;
+            dut->clk ^= 1;
+            dut->eval();
+            for(int i = 0; i < MAX_USER_BINARY_SIZE; i++){
+                dut->code_rom_addr_in = i;
+                dut->code_rom_data_in = binary_file_buff[i];
+                // one full clock cycle
+                dut->clk ^= 1;
+                dut->eval();
+                dut->clk ^= 1;
+                dut->eval();
+            }
+            continue;
+        }
+
+
+        // TODO:
+        // to handle the bin loading... add a new 'cmd-load' above and include an if() here
+        // need to populate a buffer and then exit with 'continue' to restart the sim while loop
 
         ////////////////
         // STEP 2: wait for debug_harness FSM to complete its operation (poll command_complete flag)
@@ -81,7 +117,7 @@ int main(int argc, char** argv, char** env) {
 
         while(true){
 
-            // handle initial reset condition
+            // release reset on falling edge of clock
             if(sim_time == 0 && dut->clk == 0)
                 dut->reset_n = 0;
             else{
@@ -93,8 +129,8 @@ int main(int argc, char** argv, char** env) {
             m_trace->dump(sim_time);
             sim_time++;
 
-            // the debug harness has completed the operation, give one *full* extra cycle (to return 
-            // to the reset state properly) and then break out of loop
+            // the debug harness has completed the operation, give a half clock cycle 
+            // and then break out of loop
             if(dut->command_complete){
                 dut->clk ^= 1;
                 dut->eval();

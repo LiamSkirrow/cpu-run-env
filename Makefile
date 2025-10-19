@@ -14,7 +14,7 @@
 #   this is the only time that the trace-fst should be generated. We don't need to generate the trace if we're using the Python environment
 
 CC=verilator
-ARGS=--trace-max-array 33 --trace-max-width 32
+ARGS=--trace-max-array 4096 --trace-max-width 32
 SRC=rtl/
 TB=tb/
 
@@ -34,7 +34,7 @@ dummy:
 	@echo ">>> Running Verilator Executable..."
 	@./obj_dir/Vdebug_harness &
 	@echo ">>> Initialising Python debug environment..."
-	@python3 scripts/simulate.py
+	@python3 scripts/simulate.py -t $@
 	@echo
 
 # debug:

@@ -60,3 +60,5 @@ with open(output_gen_c_path, 'w') as outputGenFile:
     outputGenFile.write(c_wrapper_total)
 
 # job done! We've generated our C code, containing our test asm code within the inline assembly wrapper function :)
+
+# TODO: might be useful to provide a count of the total number of bytes (can just get the size of the generated binary)
