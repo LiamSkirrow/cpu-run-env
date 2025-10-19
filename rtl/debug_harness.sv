@@ -1,4 +1,6 @@
-// a dummy test top level module
+`timescale 1ns / 1ps
+
+// the top level deug harness for our dut, to be debugged
 
 module debug_harness #(
     parameter DUT_INSTANTIATION = 0
@@ -67,31 +69,36 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
     always_comb begin : fsm_comb
         case(state)
             STATE_IDLE : begin
-                cpu_halt = 1'b1;
+                cpu_halt       = 1'b1;
                 comm_comp_next = 1'b0;
-                state_next = debug_cmd;
+                state_next     = debug_cmd;
             end
             STATE_RUN : begin
-                cpu_halt = 1'b0;
+                cpu_halt       = 1'b0;
                 comm_comp_next = 1'b1; // wait for breakpoint signal
-                state_next = STATE_IDLE;
+                state_next     = STATE_IDLE;
             end
             STATE_STEPI : begin
-                cpu_halt = 1'b0;
-                comm_comp_next = 1'b0;
                 if(1'b1) begin // TODO: need to grab the 'instruction retired' flag signal
                     comm_comp_next = 1'b1;
-                    state_next = STATE_IDLE;
+                    cpu_halt       = 1'b0;
+                    state_next     = STATE_IDLE;
+                end
+                else begin
+                    comm_comp_next = 1'b0;                    
+                    cpu_halt       = 1'b1;
+                    state_next     = STATE_STEPI;
                 end
             end
             STATE_STEPC : begin
-                cpu_halt = 1'b0;
+                cpu_halt       = 1'b0;
                 comm_comp_next = 1'b1;
-                state_next = STATE_IDLE;
+                state_next     = STATE_IDLE;
             end
             default : begin
+                cpu_halt       = 1'b1;
                 comm_comp_next = 1'b0;
-                state_next = STATE_IDLE;
+                state_next     = STATE_IDLE;
             end
         endcase
     end
