@@ -25,6 +25,7 @@ reg [NUM_BYTES-1:0][7:0] code_rom; // TODO: this has to synth to a reg file (I t
 reg [31:0]  code_rom_data_out;
 wire [31:0] IMEM_ADDRESS_BUS;
 wire [11:0] code_rom_addr;
+wire        breakpoint_fired;
 
 // notify the outside world that the FSM has finished running its command
 assign command_complete = comm_comp;
@@ -64,8 +65,22 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .DMEM_READ_WRN(),
         .DMEM_ADDRESS_BUS(),
         .DMEM_DATA_IN_BUS(32'd0),
-        .DMEM_DATA_OUT_BUS()
+        .DMEM_DATA_OUT_BUS(),
+        .breakpoint_fired(breakpoint_fired)
     );
+
+    // TODO: UP TO HERE!!!!!!
+    // now that the CPU can be simulated running instructions:
+    // - create a new asm file and run that test instead. Try to use a few new instructions and expose some bugs >:)
+    //   - this will useful to see how easy it is to run a different test and assemble that asm instead.
+    // - it seems like there might be some sim sync weirdness at the beginning of the sim (judging by the waveform)
+    //   - it also seems like there might be some delta cycle issues too?
+
+    // - implement BREAK/EBREAK instructions next! It would be super useful to have this functionality so I can just run a test
+    //   and bam, it'll stop at the point I want it to almost instantly.
+    // - implement instruction stepping too, need the instruction-retired flag to be working for this.
+    // - the above two bits of functionality would be improved if we also implemented a simple register dump as well. Need to
+    //   send all the instantaneous register values back to the Python env after each breakpoint hit/instruction step
 
     always_comb begin : fsm_comb
         case(state)
@@ -75,9 +90,16 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
                 state_next     = debug_cmd;
             end
             STATE_RUN : begin
-                cpu_halt       = 1'b0;
-                comm_comp_next = 1'b1; // TODO: instead wait for breakpoint signal
-                state_next     = STATE_IDLE;
+                if(breakpoint_fired) begin
+                    cpu_halt       = 1'b1;
+                    comm_comp_next = 1'b1;
+                    state_next     = STATE_IDLE;
+                end
+                else begin
+                    cpu_halt       = 1'b0;
+                    comm_comp_next = 1'b0;                    
+                    state_next     = STATE_RUN;
+                end
             end
             STATE_STEPI : begin
                 if(1'b1) begin // TODO: need to grab the 'instruction retired' flag signal
