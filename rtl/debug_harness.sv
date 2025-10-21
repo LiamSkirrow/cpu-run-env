@@ -26,6 +26,7 @@ reg [31:0]  code_rom_data_out;
 wire [31:0] IMEM_ADDRESS_BUS;
 wire [11:0] code_rom_addr;
 wire        breakpoint_fired;
+wire        instruction_retired;
 
 // notify the outside world that the FSM has finished running its command
 assign command_complete = comm_comp;
@@ -66,7 +67,8 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .DMEM_ADDRESS_BUS(),
         .DMEM_DATA_IN_BUS(32'd0),
         .DMEM_DATA_OUT_BUS(),
-        .breakpoint_fired(breakpoint_fired)
+        .breakpoint_fired(breakpoint_fired),
+        .instruction_retired(instruction_retired)
     );
 
     // TODO: UP TO HERE!!!!!!
@@ -85,7 +87,7 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
     always_comb begin : fsm_comb
         case(state)
             STATE_IDLE : begin
-                cpu_halt       = 1'b1;
+                cpu_halt       = 1'b0;  // counterintuitive, but we're only ever here for 1 cycle
                 comm_comp_next = 1'b0;
                 state_next     = debug_cmd;
             end
@@ -99,10 +101,11 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
                     cpu_halt       = 1'b0;
                     comm_comp_next = 1'b0;                    
                     state_next     = STATE_RUN;
+                    // include an illegal opcode detect here to stop it from infinite looping
                 end
             end
             STATE_STEPI : begin
-                if(1'b1) begin // TODO: need to grab the 'instruction retired' flag signal
+                if(instruction_retired) begin
                     cpu_halt       = 1'b1;
                     comm_comp_next = 1'b1;
                     state_next     = STATE_IDLE;
