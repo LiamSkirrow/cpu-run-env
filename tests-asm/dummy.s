@@ -1,6 +1,15 @@
 li a4,255
-EBREAK
 li a5,255
+li a4,254
+li a5,254
+li a4,253
+li a5,253
+li a4,252
+li a5,252
+li a4,251
+li a5,251
+li a4,250
+li a5,250
 li a4,255
 li a5,255
 li a4,255
@@ -12,18 +21,6 @@ li a5,255
 li a4,255
 li a5,255
 li a4,255
-li a5,255
-EBREAK
-li a4,255
-li a5,255
-li a4,255
-li a5,255
-li a4,255
-li a5,255
-li a4,255
-li a5,255
-li a4,255
-EBREAK
 li a5,255
 li a4,255
 li a5,255
