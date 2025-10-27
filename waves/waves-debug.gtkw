@@ -1,0 +1,123 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Oct 27 21:48:37 2025
+[*]
+[dumpfile] "/home/liam-skirrow/Documents/code/cpu-run-env/debug_harness_waves.fst"
+[dumpfile_mtime] "Mon Oct 27 21:45:20 2025"
+[dumpfile_size] 4339
+[savefile] "/home/liam-skirrow/Documents/code/cpu-run-env/waves/waves-debug.gtkw"
+[timestart] 0
+[size] 1854 1001
+[pos] -1 -1
+*-4.515194 82 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.debug_harness.
+[treeopen] TOP.debug_harness.gen_rv_inst.
+[treeopen] TOP.debug_harness.gen_rv_inst.cpu_top_inst.
+[treeopen] TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_reg_file.
+[sst_width] 415
+[signals_width] 374
+[sst_expanded] 1
+[sst_vpaned_height] 297
+@28
+TOP.debug_harness.clk
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.rst_n
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.halt
+@22
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.IMEM_ADDRESS_BUS[31:0]
+@28
+TOP.debug_harness.command_complete
+TOP.debug_harness.comm_comp
+@22
+TOP.debug_harness.state[3:0]
+@28
+TOP.debug_harness.breakpoint_fired
+TOP.debug_harness.instruction_retired
+TOP.debug_harness.program_rom_mode
+@22
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg_4c[6:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg_3c[6:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg_2c[6:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg_1c[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.IMEM_DATA_BUS[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.alu_output[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.alu_input_a[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.alu_input_b[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_inst_decode.alu_input_b[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_inst_decode.instruction_pointer_reg[31:0]
+TOP.debug_harness.code_rom_data_out[31:0]
+@29
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.finish_exec_signal
+@800022
+TOP.debug_harness.code_rom_addr[11:0]
+@28
+(0)TOP.debug_harness.code_rom_addr[11:0]
+(1)TOP.debug_harness.code_rom_addr[11:0]
+(2)TOP.debug_harness.code_rom_addr[11:0]
+(3)TOP.debug_harness.code_rom_addr[11:0]
+(4)TOP.debug_harness.code_rom_addr[11:0]
+(5)TOP.debug_harness.code_rom_addr[11:0]
+(6)TOP.debug_harness.code_rom_addr[11:0]
+(7)TOP.debug_harness.code_rom_addr[11:0]
+(8)TOP.debug_harness.code_rom_addr[11:0]
+(9)TOP.debug_harness.code_rom_addr[11:0]
+(10)TOP.debug_harness.code_rom_addr[11:0]
+(11)TOP.debug_harness.code_rom_addr[11:0]
+@1001200
+-group_end
+@c00022
+TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+@28
+(0)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(1)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(2)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(3)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(4)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(5)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(6)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(7)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(8)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(9)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(10)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(11)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(12)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(13)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(14)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(15)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(16)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(17)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(18)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(19)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(20)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(21)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(22)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(23)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(24)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(25)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(26)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(27)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(28)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(29)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(30)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+(31)TOP.debug_harness.IMEM_ADDRESS_BUS[31:0]
+@1401200
+-group_end
+@22
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_reg_file.pc_reg[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.alu_output[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_alu.alu_result_out[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_reg_file.register_file[13][31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_reg_file.register_file[14][31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_reg_file.register_file[15][31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.u_reg_file.register_file[16][31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.IMEM_DATA_BUS[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg_1c[31:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.instruction_pointer_reg_2c[6:0]
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.pc_data_out[31:0]
+@28
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.freeze_pc
+TOP.debug_harness.gen_rv_inst.cpu_top_inst.freeze_pc_reg
+[pattern_trace] 1
+[pattern_trace] 0
