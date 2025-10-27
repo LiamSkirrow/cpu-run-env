@@ -63,6 +63,9 @@ def handleCommands(conn):
         elif(user_in == 'load'):
             pass
             # send a new binary file, same as below (can the code be consolidated?)
+        
+        # TODO: detect if we've reached the end of the ASM code and exit accordingly
+        # ->    if we receive the exit_signal kill signal. Exit gracefully...
 
 # open a socket connection and wait until the client connects
 def initConnection():

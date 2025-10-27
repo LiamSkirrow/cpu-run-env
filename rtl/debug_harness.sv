@@ -13,20 +13,22 @@ module debug_harness #(
     input [11:0] code_rom_addr_in,
     input        program_rom_mode,
     output       command_complete,
+    output reg   exit_signal,
     output       Z   // the dut's main output, to be sent through to the Python UI
 );
 
-localparam NUM_INSTRS = 8;
+localparam NUM_INSTRS = 11;  // include one instruction space at the end for the 'end' meta-instruction
 localparam NUM_BYTES  = NUM_INSTRS*4;
 
 reg [3:0] state, state_next;
-reg comm_comp, comm_comp_next;
+reg comm_comp, comm_comp_next, exit_signal_next;
 reg [NUM_BYTES-1:0][7:0] code_rom; // TODO: this has to synth to a reg file (I think???) for hardware implementation
 reg [31:0]  code_rom_data_out;
 wire [31:0] IMEM_ADDRESS_BUS;
 wire [11:0] code_rom_addr;
 wire        breakpoint_fired;
 wire        instruction_retired;
+wire        finish_exec_signal;
 
 // notify the outside world that the FSM has finished running its command
 assign command_complete = comm_comp;
@@ -34,7 +36,7 @@ assign command_complete = comm_comp;
 // handle code rom initialisation
 always_ff@(posedge clk, negedge reset_code_rom_n) begin : code_rom_ff
     if(!reset_code_rom_n) begin
-        code_rom <= 'd0;
+        code_rom <= 'h0;
     end
     else begin 
         if(program_rom_mode) begin
@@ -68,7 +70,8 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .DMEM_DATA_IN_BUS(32'd0),
         .DMEM_DATA_OUT_BUS(),
         .breakpoint_fired(breakpoint_fired),
-        .instruction_retired(instruction_retired)
+        .instruction_retired(instruction_retired),
+        .finish_exec_signal(finish_exec_signal)
     );
 
     // TODO: UP TO HERE!!!!!!
@@ -80,7 +83,10 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
     //   the right places in the pipeline
 
     always_comb begin : fsm_comb
+        exit_signal_next = 1'b0;
+
         case(state)
+
             STATE_IDLE : begin
                 cpu_halt       = 1'b0;  // counterintuitive, but we're only ever here for 1 cycle
                 comm_comp_next = 1'b0;
@@ -94,9 +100,13 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
                 end
                 else begin
                     cpu_halt       = 1'b0;
-                    comm_comp_next = 1'b0;                    
+                    comm_comp_next = 1'b0;
                     state_next     = STATE_RUN;
                     // include an illegal opcode detect here to stop it from infinite looping
+                end
+
+                if(finish_exec_signal) begin
+                    exit_signal_next = 1'b1;
                 end
             end
             STATE_STEPI : begin
@@ -107,14 +117,22 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
                 end
                 else begin
                     cpu_halt       = 1'b0;
-                    comm_comp_next = 1'b0;                    
+                    comm_comp_next = 1'b0;
                     state_next     = STATE_STEPI;
+                end
+
+                if(finish_exec_signal) begin
+                    exit_signal_next = 1'b1;
                 end
             end
             STATE_STEPC : begin
                 cpu_halt       = 1'b0;
                 comm_comp_next = 1'b1;
                 state_next     = STATE_IDLE;
+
+                if(finish_exec_signal) begin
+                    exit_signal_next = 1'b1;
+                end
             end
             default : begin
                 cpu_halt       = 1'b1;
@@ -182,10 +200,12 @@ always_ff@(posedge clk, negedge reset_n) begin : fsm_seq
     if(!reset_n) begin
         state         <= 4'h0;
         comm_comp     <= 1'h0;
+        exit_signal   <= 1'b0;
     end
     else begin
-        state     <= state_next;
-        comm_comp <= comm_comp_next;
+        state       <= state_next;
+        comm_comp   <= comm_comp_next;
+        exit_signal <= exit_signal_next;
     end
 end
 

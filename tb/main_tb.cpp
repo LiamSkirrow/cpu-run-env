@@ -11,10 +11,11 @@
 #include <iomanip>
 
 #define MAX_SIM_TIME         10000
-#define MAX_USER_BINARY_SIZE 8*4
+#define MAX_USER_BINARY_SIZE_INSTRS 10
+#define MAX_USER_BINARY_SIZE_BYTES  MAX_USER_BINARY_SIZE_INSTRS*4
 
 char buffer[8] = { 0 };
-unsigned char binary_file_buff[MAX_USER_BINARY_SIZE] = { 0 };
+unsigned char binary_file_buff[MAX_USER_BINARY_SIZE_BYTES+4] = { 0 };
 vluint64_t sim_time = 0;
 // HOST = '127.0.0.1'
 // PORT = 65432
@@ -91,22 +92,42 @@ int main(int argc, char** argv, char** env) {
         }
         // command load, read in the user binary and pre-initialise the tb's code buffer, without a trace...
         if(!std::strncmp(buffer, "cmd-load", 8)){
-            recv(clientSocket, binary_file_buff, MAX_USER_BINARY_SIZE, 0);
+            recv(clientSocket, binary_file_buff, MAX_USER_BINARY_SIZE_BYTES, 0);
             // toggle reset, feed in machine code byte-by-byte, toggling clock as we do so
             dut->program_rom_mode = 1;
             dut->reset_n = 1;
             dut->reset_code_rom_n = 1;
             dut->clk ^= 1;
             dut->eval();
-            for(int i = 0; i < MAX_USER_BINARY_SIZE; i++){
+            // TODO: make the ROM programming sim tracing an optional flag... super useful :D
+            m_trace->dump(sim_time);
+            sim_time++;
+            for(int i = 0; i < MAX_USER_BINARY_SIZE_BYTES; i++){
                 dut->code_rom_addr_in = i;
                 dut->code_rom_data_in = binary_file_buff[i];
                 // one full clock cycle
                 dut->clk ^= 1;
                 dut->eval();
+                m_trace->dump(sim_time);
+                sim_time++;
                 dut->clk ^= 1;
                 dut->eval();
+                m_trace->dump(sim_time);
+                sim_time++;
             }
+            // insert the final 'done executing' meta-instruction at addr: MAX_USER_BINARY_SIZE_BYTES
+            dut->code_rom_addr_in = MAX_USER_BINARY_SIZE_BYTES;
+            dut->code_rom_data_in = (unsigned char)0xFFFFFFFF; //binary_file_buff[0]; 
+            // one full clock cycle
+            dut->clk ^= 1;
+            dut->eval();
+            m_trace->dump(sim_time);
+            sim_time++;
+            dut->clk ^= 1;
+            dut->eval();
+            m_trace->dump(sim_time);
+            sim_time++;
+
             dut->program_rom_mode = 0;
             continue;
         }
@@ -144,6 +165,12 @@ int main(int argc, char** argv, char** env) {
                 
                 break;
             }
+        }
+
+        // check if we received the 'finished program' signal, meaning we've finished the program
+        if(dut->exit_signal){
+            std::cout << "Program finished executing... Exiting." << std::endl;
+            break;
         }
 
         ////////////////
