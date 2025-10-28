@@ -11,7 +11,7 @@
 #include <iomanip>
 
 #define MAX_SIM_TIME         10000
-#define MAX_USER_BINARY_SIZE_INSTRS 10
+#define MAX_USER_BINARY_SIZE_INSTRS 2
 #define MAX_USER_BINARY_SIZE_BYTES  MAX_USER_BINARY_SIZE_INSTRS*4
 
 char buffer[8] = { 0 };
@@ -117,20 +117,25 @@ int main(int argc, char** argv, char** env) {
             }
             // insert the final 'done executing' meta-instruction at addr: MAX_USER_BINARY_SIZE_BYTES
             dut->code_rom_addr_in = MAX_USER_BINARY_SIZE_BYTES;
-            dut->code_rom_data_in = (unsigned char)0xFFFFFFFF; //binary_file_buff[0]; 
+            dut->code_rom_data_in = (unsigned char)0xFFFFFFFF; //binary_file_buff[0];
             // one full clock cycle
             dut->clk ^= 1;
             dut->eval();
             m_trace->dump(sim_time);
             sim_time++;
+            dut->reset_n = 0;
             dut->clk ^= 1;
             dut->eval();
             m_trace->dump(sim_time);
             sim_time++;
+            dut->reset_n = 1;
 
             dut->program_rom_mode = 0;
             continue;
         }
+
+        // TODO: initialise all of code mem (the reset value) so that when finishing executing the user ASM
+        //       the next address already contains the 'exit' meta-instruction
 
 
         // TODO:

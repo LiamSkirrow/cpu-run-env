@@ -17,12 +17,12 @@ module debug_harness #(
     output       Z   // the dut's main output, to be sent through to the Python UI
 );
 
-localparam NUM_INSTRS = 11;  // include one instruction space at the end for the 'end' meta-instruction
+localparam NUM_INSTRS = 2;  // include one instruction space at the end for the 'end' meta-instruction
 localparam NUM_BYTES  = NUM_INSTRS*4;
 
 reg [3:0] state, state_next;
 reg comm_comp, comm_comp_next, exit_signal_next;
-reg [NUM_BYTES-1:0][7:0] code_rom; // TODO: this has to synth to a reg file (I think???) for hardware implementation
+reg [(NUM_BYTES-1)+1:0][7:0] code_rom; // TODO: this has to synth to a reg file (I think???) for hardware implementation
 reg [31:0]  code_rom_data_out;
 wire [31:0] IMEM_ADDRESS_BUS;
 wire [11:0] code_rom_addr;
