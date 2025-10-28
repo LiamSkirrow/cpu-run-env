@@ -11,9 +11,10 @@
 #include <iomanip>
 
 #define MAX_SIM_TIME         10000
-#define MAX_USER_BINARY_SIZE_INSTRS 2
+#define MAX_USER_BINARY_SIZE_INSTRS 16
 #define MAX_USER_BINARY_SIZE_BYTES  MAX_USER_BINARY_SIZE_INSTRS*4
 
+int mem_idx;
 char buffer[8] = { 0 };
 unsigned char binary_file_buff[MAX_USER_BINARY_SIZE_BYTES+4] = { 0 };
 vluint64_t sim_time = 0;
@@ -94,41 +95,62 @@ int main(int argc, char** argv, char** env) {
         if(!std::strncmp(buffer, "cmd-load", 8)){
             recv(clientSocket, binary_file_buff, MAX_USER_BINARY_SIZE_BYTES, 0);
             // toggle reset, feed in machine code byte-by-byte, toggling clock as we do so
+            dut->reset_code_rom_n = 0;
+            dut->hclk ^= 1;
+            dut->eval();
+            m_trace->dump(sim_time);
+            sim_time++;
+
+            dut->reset_n = 1;
             dut->program_rom_mode = 1;
             dut->reset_n = 1;
             dut->reset_code_rom_n = 1;
-            dut->clk ^= 1;
+            dut->hclk ^= 1;
             dut->eval();
             // TODO: make the ROM programming sim tracing an optional flag... super useful :D
             m_trace->dump(sim_time);
             sim_time++;
-            for(int i = 0; i < MAX_USER_BINARY_SIZE_BYTES; i++){
-                dut->code_rom_addr_in = i;
-                dut->code_rom_data_in = binary_file_buff[i];
+            for(mem_idx = 0; mem_idx < MAX_USER_BINARY_SIZE_BYTES; mem_idx++){
+                dut->code_rom_addr_in = mem_idx;
+                dut->code_rom_data_in = binary_file_buff[mem_idx];
                 // one full clock cycle
-                dut->clk ^= 1;
+                dut->hclk ^= 1;
                 dut->eval();
                 m_trace->dump(sim_time);
                 sim_time++;
-                dut->clk ^= 1;
+                dut->hclk ^= 1;
                 dut->eval();
                 m_trace->dump(sim_time);
                 sim_time++;
+                if(mem_idx % 4 == 0 && dut->code_rom_data_in == (unsigned char)0x00){
+                    break;
+                }
             }
-            // insert the final 'done executing' meta-instruction at addr: MAX_USER_BINARY_SIZE_BYTES
-            dut->code_rom_addr_in = MAX_USER_BINARY_SIZE_BYTES;
-            dut->code_rom_data_in = (unsigned char)0xFFFFFFFF; //binary_file_buff[0];
+            // insert the final 'done executing' meta-instruction opcode immediately after user ASM
+            dut->code_rom_addr_in = mem_idx;
+            dut->code_rom_data_in = (unsigned char)0xFF;
             // one full clock cycle
-            dut->clk ^= 1;
+            dut->hclk ^= 1;
             dut->eval();
             m_trace->dump(sim_time);
             sim_time++;
+            dut->hclk ^= 1;
+            dut->eval();
+            m_trace->dump(sim_time);
+            sim_time++;
+
             dut->reset_n = 0;
-            dut->clk ^= 1;
+            dut->hclk ^= 1;
             dut->eval();
             m_trace->dump(sim_time);
             sim_time++;
+            
             dut->reset_n = 1;
+
+            dut->hclk ^= 1;
+            dut->eval();
+            m_trace->dump(sim_time);
+            sim_time++;
 
             dut->program_rom_mode = 0;
             continue;
@@ -136,7 +158,6 @@ int main(int argc, char** argv, char** env) {
 
         // TODO: initialise all of code mem (the reset value) so that when finishing executing the user ASM
         //       the next address already contains the 'exit' meta-instruction
-
 
         // TODO:
         // to handle the bin loading... add a new 'cmd-load' above and include an if() here

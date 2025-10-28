@@ -5,7 +5,8 @@
 module debug_harness #(
     parameter DUT_INSTANTIATION = 0
 )(
-    input        clk,
+    input        clk,  // CPU DUT clock
+    input        hclk, // debug harness clock
     input        reset_n,
     input        reset_code_rom_n,
     input [3:0]  debug_cmd,
@@ -17,13 +18,13 @@ module debug_harness #(
     output       Z   // the dut's main output, to be sent through to the Python UI
 );
 
-localparam NUM_INSTRS = 2;  // include one instruction space at the end for the 'end' meta-instruction
+localparam NUM_INSTRS = 16;  // include one instruction space at the end for the 'end' meta-instruction
 localparam NUM_BYTES  = NUM_INSTRS*4;
 
 reg [3:0] state, state_next;
 reg comm_comp, comm_comp_next, exit_signal_next;
-reg [(NUM_BYTES-1)+1:0][7:0] code_rom; // TODO: this has to synth to a reg file (I think???) for hardware implementation
-reg [31:0]  code_rom_data_out;
+reg [(NUM_BYTES-1)+4:0][7:0] code_rom; // TODO: this has to synth to a reg file (I think???) for hardware implementation
+wire [31:0] code_rom_data_out;
 wire [31:0] IMEM_ADDRESS_BUS;
 wire [11:0] code_rom_addr;
 wire        breakpoint_fired;
@@ -34,9 +35,9 @@ wire        finish_exec_signal;
 assign command_complete = comm_comp;
 
 // handle code rom initialisation
-always_ff@(posedge clk, negedge reset_code_rom_n) begin : code_rom_ff
+always_ff@(posedge hclk or negedge reset_code_rom_n) begin : code_rom_ff
     if(!reset_code_rom_n) begin
-        code_rom <= 'h0;
+        code_rom <= 'hFF; // TODO: annoyingly, this doesn't seem to work? Manually insert kill instruction in main_tb.cpp instead
     end
     else begin 
         if(program_rom_mode) begin
@@ -63,7 +64,7 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .clk(clk),
         .rst_n(reset_n),
         .halt(cpu_halt),
-        .IMEM_DATA_BUS(code_rom_data_out),
+        .IMEM_DATA_BUS(code_rom_data_out),    // TODO: this only has to be 8 bits since we read in instructions byte-by-byte
         .IMEM_ADDRESS_BUS(IMEM_ADDRESS_BUS),
         .DMEM_READ_WRN(),
         .DMEM_ADDRESS_BUS(),
@@ -84,6 +85,9 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
 
     always_comb begin : fsm_comb
         exit_signal_next = 1'b0;
+        cpu_halt         = 'h0;
+        comm_comp_next   = 'h0;
+        state_next       = 'h0;
 
         case(state)
 
@@ -205,7 +209,8 @@ always_ff@(posedge clk, negedge reset_n) begin : fsm_seq
     else begin
         state       <= state_next;
         comm_comp   <= comm_comp_next;
-        exit_signal <= exit_signal_next;
+        if(exit_signal_next)
+            exit_signal <= 1'b1;
     end
 end
 
