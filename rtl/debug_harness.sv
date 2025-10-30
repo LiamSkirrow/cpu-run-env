@@ -18,7 +18,7 @@ module debug_harness #(
     output       Z   // the dut's main output, to be sent through to the Python UI
 );
 
-localparam NUM_INSTRS = 16;  // include one instruction space at the end for the 'end' meta-instruction
+localparam NUM_INSTRS = 128;  // include one instruction space at the end for the 'end' meta-instruction
 localparam NUM_BYTES  = NUM_INSTRS*4;
 
 reg [3:0] state, state_next;
@@ -90,7 +90,6 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         state_next       = 'h0;
 
         case(state)
-
             STATE_IDLE : begin
                 cpu_halt       = 1'b0;  // counterintuitive, but we're only ever here for 1 cycle
                 comm_comp_next = 1'b0;
@@ -111,6 +110,7 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
 
                 if(finish_exec_signal) begin
                     exit_signal_next = 1'b1;
+                    comm_comp_next   = 1'b1;
                 end
             end
             STATE_STEPI : begin
@@ -127,15 +127,17 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
 
                 if(finish_exec_signal) begin
                     exit_signal_next = 1'b1;
+                    comm_comp_next   = 1'b1;
                 end
             end
             STATE_STEPC : begin
-                cpu_halt       = 1'b0;
+                cpu_halt       = 1'b1;
                 comm_comp_next = 1'b1;
                 state_next     = STATE_IDLE;
 
                 if(finish_exec_signal) begin
                     exit_signal_next = 1'b1;
+                    comm_comp_next   = 1'b1;
                 end
             end
             default : begin

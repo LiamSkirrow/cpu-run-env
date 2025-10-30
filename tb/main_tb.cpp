@@ -11,7 +11,7 @@
 #include <iomanip>
 
 #define MAX_SIM_TIME         10000
-#define MAX_USER_BINARY_SIZE_INSTRS 16
+#define MAX_USER_BINARY_SIZE_INSTRS 128
 #define MAX_USER_BINARY_SIZE_BYTES  MAX_USER_BINARY_SIZE_INSTRS*4
 
 int mem_idx;
@@ -156,9 +156,6 @@ int main(int argc, char** argv, char** env) {
             continue;
         }
 
-        // TODO: initialise all of code mem (the reset value) so that when finishing executing the user ASM
-        //       the next address already contains the 'exit' meta-instruction
-
         // TODO:
         // to handle the bin loading... add a new 'cmd-load' above and include an if() here
         // need to populate a buffer and then exit with 'continue' to restart the sim while loop
@@ -168,7 +165,8 @@ int main(int argc, char** argv, char** env) {
         ////////////////
 
         while(true){
-
+            
+            // TODO: this doesn't do anything since sim_time != 0 at this point
             // release reset on falling edge of clock
             if(sim_time == 0 && dut->clk == 0)
                 dut->reset_n = 0;
