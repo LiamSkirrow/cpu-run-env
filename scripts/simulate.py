@@ -53,8 +53,11 @@ def handleCommands(conn):
         # now block waiting on response command from TB
         if(user_in == 'run' or user_in == 'stepi' or user_in == 'stepc'):
             resp = conn.recv(14)
-            print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
-            if(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):
+            # print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
+            if(resp == b'cmd-exit-resp\0'):
+                print('Received exit response... Exiting Python env')
+                break
+            elif(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):
                 resp = conn.recv(1)
                 print('Value of Z: ' + str(resp))
             else:

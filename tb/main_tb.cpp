@@ -193,7 +193,8 @@ int main(int argc, char** argv, char** env) {
 
         // check if we received the 'finished program' signal, meaning we've finished the program
         if(dut->exit_signal){
-            std::cout << "Program finished executing... Exiting." << std::endl;
+            std::cout << "Program finished executing... Exiting Verilator env." << std::endl;
+            send(clientSocket, "cmd-exit-resp", sizeof("cmd-exit-resp"), 0);
             break;
         }
 
