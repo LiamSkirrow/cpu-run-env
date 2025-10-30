@@ -58,7 +58,7 @@ def handleCommands(conn):
                 print('Received exit response... Exiting Python env')
                 break
             elif(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):
-                resp = conn.recv(1)
+                resp = conn.recv(4)
                 print('Value of Z: ' + str(resp))
             else:
                 print('Got an incorrect response command from simulation... Bug detected! Please report on GitHub Issues...')

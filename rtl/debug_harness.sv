@@ -15,7 +15,7 @@ module debug_harness #(
     input        program_rom_mode,
     output       command_complete,
     output reg   exit_signal,
-    output       Z   // the dut's main output, to be sent through to the Python UI
+    output [31:0][31:0] reg_dump
 );
 
 localparam NUM_INSTRS = 128;  // include one instruction space at the end for the 'end' meta-instruction
@@ -30,6 +30,7 @@ wire [11:0] code_rom_addr;
 wire        breakpoint_fired;
 wire        instruction_retired;
 wire        finish_exec_signal;
+wire        Z;
 
 // notify the outside world that the FSM has finished running its command
 assign command_complete = comm_comp;
@@ -72,7 +73,8 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .DMEM_DATA_OUT_BUS(),
         .breakpoint_fired(breakpoint_fired),
         .instruction_retired(instruction_retired),
-        .finish_exec_signal(finish_exec_signal)
+        .finish_exec_signal(finish_exec_signal),
+        .reg_dump_debug(reg_dump)
     );
 
     // TODO: UP TO HERE!!!!!!

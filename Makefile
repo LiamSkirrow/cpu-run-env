@@ -43,11 +43,6 @@ dummy:
 	@python3 scripts/simulate.py -t $@
 	@echo
 
-# debug:
-# 	$(CC) -Wno-fatal --debug --gdb --trace-fst --cc $(SRC)debug_harness.sv $(SRC)top.sv --exe $(TB)main_tb.cpp $(ARGS)
-# 	make -C obj_dir -f Vdebug_harness.mk Vdebug_harness
-# 	./obj_dir/Vdebug_harness --gdb
-
 clean:
 	rm -rf gen-output
 	rm -rf obj_dir
