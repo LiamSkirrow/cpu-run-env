@@ -2,6 +2,9 @@
 An interactive and modular runtime and debug environment for CPU cores.
 
 The idea is that you can easily instantiate an RTL CPU core in the debug harness, write an asm code snippet, and simulate the program on the core whilst being given the ability to single-step and place breakpoints at various points in the program.
+
+TODO: document the hooks necessary for the CPU core to support in order to single-step and run etc...
+
 ### Current State of Project
 Currently, the RISC-V asm snippet at the path `./tests-asm/dummy.s` will be compiled using the `riscv32-unknown-elf-gcc` compiler, generating a 32-bit ELF. The `readelf.py` script will parse the ELF, creating a 'stripped down' version of the executable code, only keeping the machine code corresponding to the `./tests-asm/dummy.s` without all the compiler boilerplate. For this reason, compiling C code is not currently supported, [however is planned for the future](https://github.com/LiamSkirrow/cpu-run-env/issues/1). After the code is assembled and the simplified binary is generated, we're presented with a prompt that allows us to either `run`, `stepi` (instruction step) or `stepc` (clock cycle step) the binary on the simulated CPU core. Typing `exit` will close the socket connection between the Python env and the Verilator env, as well as saving the FST waveform file, to be opened ideally with GTKWave.
 
