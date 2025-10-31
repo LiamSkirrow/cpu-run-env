@@ -24,15 +24,19 @@ TB=tb/
 # TODO: eventually I'd like to move this config into a yaml file. Not sure 
 #       how easy that'd be though...
 
-dummy:
-	@echo "Running asm test: '$@.s'"
+all: fw sim
+
+fw:
+	@echo "Running asm test: '$(test).s'"
 	@echo
-	@python3 scripts/genAsm.py -t $@ -a asm
+	@python3 scripts/genAsm.py -t $(test) -a asm
 	@echo "Compiling generated C code..."
-	@riscv32-unknown-linux-gnu-gcc gen-output/$@.c -o gen-output/$@
-	@python3 scripts/readelf.py -e $@
+	@riscv32-unknown-linux-gnu-gcc gen-output/$(test).c -o gen-output/$(test)
+	@python3 scripts/readelf.py -e $(test)
 	@echo
-	@hd -C gen-output/$@.genbin
+	@hd -C gen-output/$(test).genbin
+	
+sim:
 	@echo
 	@echo ">>> Running Verilator Compilation..."
 	@$(CC) --trace-fst --cc $(SRC_DBG_HARNESS) $(SRC_RV_CPU)*.$(EXT_RV_CPU) $(SRC_DUM)*.$(EXT_DUM) --exe $(TB)main_tb.cpp $(ARGS) -GDUT_INSTANTIATION=0 --trace-params
@@ -40,7 +44,7 @@ dummy:
 	@echo ">>> Running Verilator Executable..."
 	@./obj_dir/Vdebug_harness &
 	@echo ">>> Initialising Python debug environment..."
-	@python3 scripts/simulate.py -t $@
+	@python3 scripts/simulate.py -t $(test)
 	@echo
 
 clean:
