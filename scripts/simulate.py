@@ -55,6 +55,8 @@ def handleCommands(conn):
             resp = conn.recv(14)
             # print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
             if(resp == b'cmd-exit-resp\0'):
+                resp = conn.recv(4)
+                print('Value of Z: ' + str(resp))
                 print('Received exit response... Exiting Python env')
                 break
             elif(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):

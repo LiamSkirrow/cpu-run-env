@@ -18,6 +18,15 @@ module debug_harness #(
     output [31:0][31:0] reg_dump
 );
 
+// TODO: UP TO HERE!!!
+// - dump all reg values by default, maybe having some config to select which registers get dumped
+//   at the conclusion of each stepi/stepc/run
+// - format the register dump in big-endian (for human readability) and use a couple of columns so it 
+//   doesn't consume the whole display. Print out reg values in hex.
+// - v0.1 is pretty much done! Just have to debug the CPU now :)
+//   - except for cleaning up the Makefile to support running arbitrary ASM tests, and other bits
+//     of cleanup...
+
 localparam NUM_INSTRS = 128;  // include one instruction space at the end for the 'end' meta-instruction
 localparam NUM_BYTES  = NUM_INSTRS*4;
 
@@ -76,14 +85,6 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .finish_exec_signal(finish_exec_signal),
         .reg_dump_debug(reg_dump)
     );
-
-    // TODO: UP TO HERE!!!!!!
-    // now that the CPU can be simulated running instructions:
-    // - create a new asm file and run that test instead. Try to use a few new instructions and expose some bugs >:)
-    //   - this will useful to see how easy it is to run a different test and assemble that asm instead.
-    
-    // - it seems like we might have some operand forwarding bugs... The waves suggest we're not muxing from
-    //   the right places in the pipeline
 
     always_comb begin : fsm_comb
         exit_signal_next = 1'b0;

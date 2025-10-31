@@ -190,17 +190,21 @@ int main(int argc, char** argv, char** env) {
                 break;
             }
         }
+        
+        ////////////////
+        // STEP 3: transmit relevant output data over socket to Python UI, for display to user (if single-step or hit breakpoint)
+        ////////////////
 
         // check if we received the 'finished program' signal, meaning we've finished the program
         if(dut->exit_signal){
             std::cout << "Program finished executing... Exiting Verilator env." << std::endl;
-            send(clientSocket, "cmd-exit-resp", sizeof("cmd-exit-resp"), 0);
+            if(send(clientSocket, "cmd-exit-resp", sizeof("cmd-exit-resp"), 0) == -1){
+                std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
+                exit(-1);
+            }
+            send(clientSocket, &dut->reg_dump[14], sizeof(dut->reg_dump[14]), 0);
             break;
         }
-
-        ////////////////
-        // STEP 3: transmit relevant output data over socket to Python UI, for display to user (if single-step or hit breakpoint)
-        ////////////////
 
         // acknowledge successful completion of command to Python UI
         if(!std::strncmp(buffer, "cmd-stpi", 8)){
