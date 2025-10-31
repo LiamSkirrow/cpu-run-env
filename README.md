@@ -1,5 +1,16 @@
 # CPU Runtime Environment
-An interactive and modular runtime and debug environment for CPU cores
+An interactive and modular runtime and debug environment for CPU cores.
+
+The idea is that you can easily instantiate an RTL CPU core in the debug harness, write an asm code snippet, and simulate the program on the core whilst being given the ability to single-step and place breakpoints at various points in the program.
+### Current State of Project
+Currently, the RISC-V asm snippet at the path `./tests-asm/dummy.s` will be compiled using the `riscv32-unknown-elf-gcc` compiler, generating a 32-bit ELF. The `readelf.py` script will parse the ELF, creating a 'stripped down' version of the executable code, only keeping the machine code corresponding to the `./tests-asm/dummy.s` without all the compiler boilerplate. For this reason, compiling C code is not currently supported, [however is planned for the future](https://github.com/LiamSkirrow/cpu-run-env/issues/1). After the code is assembled and the simplified binary is generated, we're presented with a prompt that allows us to either `run`, `stepi` (instruction step) or `stepc` (clock cycle step) the binary on the simulated CPU core. Typing `exit` will close the socket connection between the Python env and the Verilator env, as well as saving the FST waveform file, to be opened ideally with GTKWave.
+
+### Dependencies
+- Verilator (v???)
+- riscv-gnu-toolchain (specifically the `riscv32-unknown-elf-gcc` compiler since the default instantiated CPU is my 32 bit RV toy core)
+- Python3, load the venv with `pip install -r requirements.txt` to load [the 3rd party Python library](https://github.com/eliben/pyelftools) that parses the ELF 
+
+# Development Notes
 
 ## Firmware build
 - Start with a test ASM file, containing nothing but assembly code for the targeted architecture
