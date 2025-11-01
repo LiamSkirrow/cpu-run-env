@@ -40,6 +40,7 @@ wire        breakpoint_fired;
 wire        instruction_retired;
 wire        finish_exec_signal;
 wire        Z;
+wire        unrecognised_opcode_flag;
 
 // notify the outside world that the FSM has finished running its command
 assign command_complete = comm_comp;
@@ -83,7 +84,8 @@ generate if(DUT_INSTANTIATION == 0) begin : gen_rv_inst
         .breakpoint_fired(breakpoint_fired),
         .instruction_retired(instruction_retired),
         .finish_exec_signal(finish_exec_signal),
-        .reg_dump_debug(reg_dump)
+        .reg_dump_debug(reg_dump),
+        .unrecognised_opcode_flag(unrecognised_opcode_flag)
     );
 
     always_comb begin : fsm_comb
