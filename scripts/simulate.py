@@ -55,13 +55,17 @@ def handleCommands(conn):
             resp = conn.recv(14)
             # print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
             if(resp == b'cmd-exit-resp\0'):
-                resp = conn.recv(4)
-                print('Value of Z: ' + str(resp))
+                resp = conn.recv(128)
+                # TODO: include a nicely formatted printout function here
+                for i in range(0,32):
+                    print('x' + str(i) + ': ' + str(resp[i*4 : (i*4)+4]))
                 print('Received exit response... Exiting Python env')
                 break
             elif(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):
-                resp = conn.recv(4)
-                print('Value of Z: ' + str(resp))
+                resp = conn.recv(128)
+                # TODO: include a nicely formatted printout function here
+                for i in range(0,32):
+                    print('x' + str(i) + ': ' + str(resp[i*4 : (i*4)+4]))
             else:
                 print('Got an incorrect response command from simulation... Bug detected! Please report on GitHub Issues...')
                 exit(0)

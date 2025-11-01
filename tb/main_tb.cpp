@@ -202,7 +202,7 @@ int main(int argc, char** argv, char** env) {
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
-            send(clientSocket, &dut->reg_dump[14], sizeof(dut->reg_dump[14]), 0);
+            send(clientSocket, &dut->reg_dump, sizeof(dut->reg_dump), 0);
             break;
         }
 
@@ -213,28 +213,28 @@ int main(int argc, char** argv, char** env) {
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
-            send(clientSocket, &dut->reg_dump[14], sizeof(dut->reg_dump[14]), 0);
+            send(clientSocket, &dut->reg_dump, sizeof(dut->reg_dump), 0);
         }
         else if(!std::strncmp(buffer, "cmd-stpc", 8)){
             if(send(clientSocket, "cmd-stpc-resp", sizeof("cmd-stpc-resp"), 0) == -1){
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
-            send(clientSocket, &dut->reg_dump[14], sizeof(dut->reg_dump[14]), 0);
+            send(clientSocket, &dut->reg_dump, sizeof(dut->reg_dump), 0);
         }
         else if(!std::strncmp(buffer, "cmd-load", 8)){
             if(send(clientSocket, "cmd-load-resp", sizeof("cmd-load-resp"), 0) == -1){
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
-            send(clientSocket, &dut->reg_dump[14], sizeof(dut->reg_dump[14]), 0);
+            send(clientSocket, &dut->reg_dump, sizeof(dut->reg_dump), 0);
         }
         else if(!std::strncmp(buffer, "cmd-runn", 8)){
             if(send(clientSocket, "cmd-runn-resp", sizeof("cmd-runn-resp"), 0) == -1){
                 std::cout << "BUG: Failed to send the response command... Exiting. Please create a GitHub Issue!" << std::endl;
                 exit(-1);
             }
-            send(clientSocket, &dut->reg_dump[14], sizeof(dut->reg_dump[14]), 0);
+            send(clientSocket, &dut->reg_dump, sizeof(dut->reg_dump), 0);
         }
     }
 
