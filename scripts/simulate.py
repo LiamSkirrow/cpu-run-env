@@ -15,6 +15,11 @@ args = parser.parse_args()
 test_name = args.testname
 test_path = 'gen-output/' + test_name + '.genbin'
 
+# print out the latest state of the CPU registers
+def formatRegDump(regs):
+    for i in range(0,32):
+        print('x' + str(i) + ': ' + str(regs[i*4 : (i*4)+4]))
+
 # handle the user input, dispatch testbench commands
 def handleCommands(conn):
     while(True):
@@ -56,16 +61,12 @@ def handleCommands(conn):
             # print('Received value of resp from sim: ' + str(resp) + ' with size: ' + str(len(resp)))
             if(resp == b'cmd-exit-resp\0'):
                 resp = conn.recv(128)
-                # TODO: include a nicely formatted printout function here
-                for i in range(0,32):
-                    print('x' + str(i) + ': ' + str(resp[i*4 : (i*4)+4]))
+                formatRegDump(resp)                
                 print('Received exit response... Exiting Python env')
                 break
             elif(resp == b'cmd-runn-resp\0' or resp == b'cmd-stpi-resp\0' or resp == b'cmd-stpc-resp\0' or resp == b'cmd-load-resp\0'):
                 resp = conn.recv(128)
-                # TODO: include a nicely formatted printout function here
-                for i in range(0,32):
-                    print('x' + str(i) + ': ' + str(resp[i*4 : (i*4)+4]))
+                formatRegDump(resp)
             else:
                 print('Got an incorrect response command from simulation... Bug detected! Please report on GitHub Issues...')
                 exit(0)
