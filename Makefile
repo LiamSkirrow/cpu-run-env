@@ -31,7 +31,7 @@ fw:
 	@echo
 	@python3 scripts/genAsm.py -t $(test) -a asm
 	@echo "Compiling generated C code..."
-	@riscv32-unknown-linux-gnu-gcc gen-output/$(test).c -o gen-output/$(test)
+	@riscv32-unknown-linux-gnu-gcc gen-output/$(test).c -o gen-output/$(test) -march=rv32id
 	@python3 scripts/readelf.py -e $(test)
 	@echo
 	@hd -C gen-output/$(test).genbin
