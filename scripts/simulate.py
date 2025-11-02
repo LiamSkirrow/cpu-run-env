@@ -17,8 +17,13 @@ test_path = 'gen-output/' + test_name + '.genbin'
 
 # print out the latest state of the CPU registers
 def formatRegDump(regs):
-    for i in range(0,32):
-        print('x' + str(i) + ': ' + str(regs[i*4 : (i*4)+4]))
+    for i in range(0,8):
+        reg_index = i
+        # print out the 8 rows of 4 columns
+        print('x' + str(reg_index)      + ': ' + str(regs[4*reg_index      : (4*reg_index)+4]),      end='   ')
+        print('x' + str(reg_index + 8)  + ': ' + str(regs[4*reg_index + 8*4  : (4*reg_index + 8*4)+4]),  end='   ')
+        print('x' + str(reg_index + 16) + ': ' + str(regs[4*reg_index + 16*4 : (4*reg_index + 16*4)+4]), end='   ')
+        print('x' + str(reg_index + 24) + ': ' + str(regs[4*reg_index + 24*4 : (4*reg_index + 24*4)+4]))
 
 # handle the user input, dispatch testbench commands
 def handleCommands(conn):
